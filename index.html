@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>読谷村 自治会ボード v2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+<style>
+/* ━━━━━━━━━━ CSS変数 ━━━━━━━━━━ */
+:root {
+  --g-deep: #1a6b3c; --g-mid: #2d8f54; --g-soft: #4aad70;
+  --g-pale: #e8f5ee; --g-faint: #f2faf5;
+  --amber: #d08000; --amber-pale: #fff8e0; --amber-bg: #fffdf0;
+  --blue: #2a6cb5; --blue-pale: #e6f0fa;
+  --red: #c0392b; --red-pale: #fff0ee;
+  --purple: #7b5cb8; --purple-pale: #f0ecfa;
+  --ink: #1a1a1a; --ink-mid: #444; --ink-light: #777; --ink-faint: #aaa;
+  --surface: #ffffff; --bg: #f0f5f2; --border: #cce4d6;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-xl: 20px;
+
+  /* 鮮度カラー */
+  --fresh-today-top: #1a6b3c; --fresh-today-bg: #ffffff; --fresh-today-text: #1a1a1a;
+  --fresh-week-top: #2a6cb5;  --fresh-week-bg:  #fafcff; --fresh-week-text: #1a1a1a;
+  --fresh-month-top:#c8900a;  --fresh-month-bg: #fffdf5; --fresh-month-text:#444;
+  --fresh-old-top:  #bbb;     --fresh-old-bg:   #f8f8f7; --fresh-old-text: #888;
+  --fresh-none-top: #ddd;     --fresh-none-bg:  #f9f9f9; --fresh-none-text:#aaa;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{font-size:16px;}
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  background:var(--bg); color:var(--ink);
+  min-height:100vh; overscroll-behavior:none;
+  padding-left:max(0px,env(safe-area-inset-left,0px));
+  padding-right:max(0px,env(safe-area-inset-right,0px));
+}
+
+/* ━━━━━━━━━━ ヘッダー ━━━━━━━━━━ */
+.hdr{
+  background:var(--g-deep); padding:0 16px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 10px rgba(0,0,0,0.18);
+}
+.hdr-inner{max-width:500px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-title{font-size:15px;font-weight:700;color:#fff;font-family:'Noto Serif JP',serif;line-height:1.2;}
+.logo-sub{font-size:9.5px;color:rgba(255,255,255,0.5);}
+.menu-btn{background:rgba(255,255,255,0.15);border:none;border-radius:8px;height:36px;padding:0 12px;cursor:pointer;color:#fff;font-size:13px;font-weight:700;font-family:inherit;display:flex;align-items:center;gap:5px;}
+
+/* v2バッジ */
+.v2-chip{
+  display:inline-block;font-size:9px;font-weight:700;letter-spacing:0.08em;
+  background:#fff3;color:#fff;border:1px solid rgba(255,255,255,0.4);
+  border-radius:8px;padding:2px 7px;margin-left:6px;vertical-align:middle;
+}
+
+/* ━━━━━━━━━━ メイン ━━━━━━━━━━ */
+.main{max-width:500px;margin:0 auto;padding:14px max(14px,env(safe-area-inset-left,0px)) 40px;}
+
+/* ━━━━━━━━━━ 参加リスト（改善案 別案）━━━━━━━━━━ */
+.part-card{
+  background:#fff;border-radius:var(--r-lg);
+  border:1.5px solid var(--border);
+  overflow:hidden;margin-bottom:14px;
+}
+.part-header{
+  background:linear-gradient(135deg,var(--g-deep),var(--g-mid));
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+}
+.part-title{font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;}
+.part-fraction{font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.2);border-radius:12px;padding:3px 10px;}
+.part-bar-wrap{padding:10px 14px 0;}
+.part-bar-track{background:#e0ede6;border-radius:8px;height:8px;overflow:hidden;display:flex;}
+.part-bar-seg{height:100%;transition:width 0.6s ease;}
+.part-bar-label{font-size:10.5px;color:var(--ink-light);margin-top:5px;margin-bottom:10px;}
+.part-chips{display:flex;gap:6px;padding:0 14px 14px;flex-wrap:wrap;}
+.part-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#f8faf9;color:var(--ink-mid);}
+.part-chip strong{font-size:14px;font-weight:700;}
+.chip-today{background:#f0faf4;border-color:#a0d8b8;}
+.chip-week{background:#f0f6ff;border-color:#9abde0;}
+.chip-month{background:#fff9f0;border-color:#e0c880;}
+.chip-none{background:#f5f5f5;border-color:#ddd;}
+.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ━━━━━━━━━━ 現在地バー ━━━━━━━━━━ */
+.loc-bar{background:#fff;border-radius:var(--r-md);border:1.5px solid var(--border);padding:9px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.loc-text{flex:1;font-size:12px;color:var(--ink-light);}
+.loc-text strong{color:var(--g-deep);}
+.loc-btn{background:var(--g-deep);color:#fff;border:none;border-radius:var(--r-sm);padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap;font-weight:500;}
+
+/* ━━━━━━━━━━ セクションラベル ━━━━━━━━━━ */
+.sec-label{font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--ink-light);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+
+/* ━━━━━━━━━━ お気に入りバナー ━━━━━━━━━━ */
+.fav-banner{
+  background:linear-gradient(135deg,var(--g-deep),var(--g-mid));
+  border-radius:var(--r-md);padding:12px 14px;
+  margin-bottom:10px;display:flex;align-items:center;gap:10px;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.fav-banner:hover{opacity:0.92;}
+.fav-banner-icon{font-size:22px;flex-shrink:0;}
+.fav-banner-info{flex:1;min-width:0;}
+.fav-banner-label{font-size:10px;color:rgba(255,255,255,0.7);font-weight:700;}
+.fav-banner-name{font-size:16px;font-weight:700;color:#fff;font-family:'Noto Serif JP',serif;}
+.fav-banner-badge{background:rgba(255,255,255,0.25);color:#fff;font-size:14px;font-weight:700;padding:4px 11px;border-radius:20px;flex-shrink:0;}
+.fav-banner-arrow{color:rgba(255,255,255,0.7);font-size:18px;flex-shrink:0;}
+
+/* ━━━━━━━━━━ 付箋風グリッド（改善案 3）━━━━━━━━━━ */
+.sticky-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.sticky-card{
+  background:var(--fresh-none-bg);
+  border-radius:var(--r-md);
+  border:1px solid var(--border);
+  overflow:hidden;cursor:pointer;
+  transition:transform 0.12s,box-shadow 0.12s;
+  position:relative;
+}
+.sticky-card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.1);}
+.sticky-card.fav-card{border:2px solid var(--amber);}
+.sticky-top-bar{height:5px;border-radius:0;}
+
+/* 鮮度別の色 */
+.fresh-today .sticky-top-bar{background:var(--g-mid);}
+.fresh-today{background:var(--fresh-today-bg);}
+.fresh-week .sticky-top-bar{background:var(--blue);}
+.fresh-week{background:var(--fresh-week-bg);}
+.fresh-month .sticky-top-bar{background:var(--amber);}
+.fresh-month{background:var(--fresh-month-bg);}
+.fresh-old .sticky-top-bar{background:#bbb;}
+.fresh-old{background:var(--fresh-old-bg);}
+.fresh-none .sticky-top-bar{background:#ddd;}
+.fresh-none{background:var(--fresh-none-bg);}
+
+.sticky-body{padding:10px 11px 9px;}
+.sticky-name{font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sticky-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:4px;}
+.sticky-badge.bd-today{background:var(--g-pale);color:var(--g-deep);}
+.sticky-badge.bd-week{background:var(--blue-pale);color:var(--blue);}
+.sticky-badge.bd-month{background:var(--amber-pale);color:var(--amber);}
+.sticky-badge.bd-old{background:#f0f0f0;color:#888;}
+.sticky-badge.bd-none{background:#f0f0f0;color:#bbb;}
+.sticky-count{font-size:10.5px;color:var(--ink-faint);}
+.sticky-preview{font-size:11.5px;color:var(--ink-mid);line-height:1.5;margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.06);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;}
+.sticky-days{
+  position:absolute;top:14px;right:9px;
+  font-size:9.5px;font-weight:700;
+  padding:2px 6px;border-radius:8px;
+}
+/* 経過日数バッジ（改善案 2）*/
+.days-today{background:#e8f5ee;color:var(--g-deep);}
+.days-week{background:#e6f0fa;color:var(--blue);}
+.days-month{background:#fff8e0;color:var(--amber);}
+.days-old{background:#f0f0f0;color:#888;}
+.days-none{background:#f0f0f0;color:#bbb;}
+
+/* 30日以上未投稿バナー（改善案 5）リスト下部 */
+.inactive-warn{
+  background:#fff8f0;border:1.5px dashed #e09040;
+  border-radius:var(--r-md);padding:8px 12px;
+  font-size:11px;color:#a05010;
+  display:flex;align-items:center;gap:6px;
+  margin-top:4px;
+}
+
+/* ━━━━━━━━━━ 新着情報（改善案 1 鮮度）━━━━━━━━━━ */
+.na-section{background:#fff;border-radius:var(--r-lg);border:1.5px solid #e8c030;margin-bottom:14px;overflow:hidden;}
+.na-hdr{background:#f5d840;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;}
+.na-title{font-size:13px;font-weight:700;color:#5a3e00;display:flex;align-items:center;gap:6px;}
+.na-cnt{font-size:12px;font-weight:700;background:rgba(90,62,0,0.15);color:#5a3e00;border-radius:10px;padding:2px 9px;}
+.na-refresh-btn{background:rgba(90,62,0,0.12);border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;color:#5a3e00;font-family:inherit;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;gap:4px;}
+.na-refresh-btn:hover{background:rgba(90,62,0,0.22);}
+.na-refresh-icon{display:inline-block;}
+.na-refresh-btn.spinning .na-refresh-icon{animation:spin 0.6s linear infinite;}
+.na-empty{padding:16px 14px;font-size:13px;color:#9a8040;text-align:center;}
+.na-item{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0e090;transition:background 0.1s;}
+.na-item:last-child{border-bottom:none;}
+.na-item:hover{background:#fff8d0;}
+.na-age{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;}
+.na-age.t{background:var(--g-pale);color:var(--g-deep);}
+.na-age.w{background:var(--blue-pale);color:var(--blue);}
+.na-name{flex:1;font-size:14px;font-weight:700;color:var(--ink);}
+.na-time{font-size:11px;color:var(--ink-faint);font-family:'DM Mono',monospace;flex-shrink:0;}
+.na-arr{color:#c8a000;font-size:18px;flex-shrink:0;}
+
+/* ━━━━━━━━━━ ボード表示 ━━━━━━━━━━ */
+.back-btn{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-md);padding:7px 16px 7px 10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--ink-mid);display:inline-flex;align-items:center;gap:6px;margin-bottom:14px;transition:all 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.07);}
+.back-btn:hover{background:var(--g-faint);border-color:var(--g-mid);color:var(--g-deep);}
+@media(prefers-color-scheme:dark){.back-btn{background:rgba(255,255,255,0.06);}}
+.board-name{font-size:24px;font-weight:700;color:var(--ink);font-family:'Noto Serif JP',serif;line-height:1.3;margin-bottom:4px;}
+.board-meta{font-size:12px;color:var(--ink-faint);margin-bottom:12px;}
+
+.detail-links{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.detail-link-btn{display:flex;align-items:center;gap:5px;background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--ink-mid);text-decoration:none;transition:all 0.12s;}
+.detail-link-btn:hover{border-color:var(--g-mid);color:var(--g-deep);}
+.detail-link-btn svg{width:15px;height:15px;flex-shrink:0;}
+.like-btn svg{width:16px;height:16px;flex-shrink:0;}
+.lnk-ig:hover{border-color:#c13584;color:#c13584;}
+.lnk-yt:hover{border-color:#e00000;color:#e00000;}
+.lnk-fb:hover{border-color:#1877f2;color:#1877f2;}
+
+.fav-toggle-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;margin-bottom:12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;color:var(--ink-faint);float:right;clear:both;}
+.fav-toggle-btn.is-fav{background:var(--amber-pale);border-color:var(--amber);color:var(--amber);}
+.fav-toggle-btn:hover{border-color:var(--g-mid);color:var(--g-deep);}
+.fav-toggle-btn.is-fav:hover{border-color:var(--red);color:var(--red);background:var(--red-pale);}
+
+/* ── ボードタブ ── */
+.board-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid var(--border);}
+.board-tab{flex:1;padding:10px 8px;background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--ink-faint);display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;margin-bottom:-2px;}
+.board-tab.active.t-notice{color:var(--g-deep);border-bottom-color:var(--g-deep);}
+.board-tab.active.t-cond{color:#4a4a48;border-bottom-color:#6b6b66;}
+.tab-cnt{font-size:12px;font-weight:700;border-radius:10px;padding:2px 8px;}
+.tab-cnt.notice{background:var(--g-pale);color:var(--g-mid);}
+.tab-cnt.cond{background:#e8e8e4;color:#5a5a56;}
+
+/* ── メッセージカード（改善案 1 鮮度）── */
+.msg-list{display:flex;flex-direction:column;gap:8px;}
+.msg-card{
+  border-radius:var(--r-md);
+  border:1px solid var(--border);
+  padding:14px;
+  transition:opacity 0.2s;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06),0 2px 8px rgba(0,0,0,0.03);
+}
+/* 紙の捲れ（右下端） */
+.msg-card::after{
+  content:'';position:absolute;bottom:0;right:0;z-index:2;
+  width:20px;height:20px;pointer-events:none;
+  background:linear-gradient(225deg,var(--bg) 44%,rgba(80,50,10,0.10) 52%,transparent 66%);
+}
+/* 鮮度による外観変化 */
+.msg-card.fresh-today{
+  background:#ffffff;
+  border-color:#a0d8b8;
+  border-left:4px solid var(--g-mid);
+}
+.msg-card.fresh-week{
+  background:#fafcff;
+  border-color:#b8d0ea;
+  border-left:4px solid var(--blue);
+}
+.msg-card.fresh-month{
+  background:#fffdf5;
+  border-color:#e0c880;
+  border-left:4px solid var(--amber);
+  opacity:0.85;
+}
+.msg-card.fresh-old{
+  background:#f9f9f7;
+  border-color:#ddd;
+  border-left:4px solid #ccc;
+  opacity:0.65;
+}
+
+/* 重要フラグ */
+.msg-card.priority-high{
+  background:#fff8f0;
+  border-left:4px solid #e8520a;
+  border-color:#f5c4a0;
+}
+.msg-priority-label{display:none;}
+.msg-card.priority-high .msg-priority-label{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10px;font-weight:700;color:#e8520a;
+  background:#fde8d8;padding:2px 8px;border-radius:10px;margin-right:4px;
+}
+.msg-meta{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.msg-jichi{font-size:13px;font-weight:700;color:var(--g-deep);}
+.msg-time{font-size:12px;color:var(--ink-faint);font-family:'DM Mono',monospace;}
+.msg-age-badge{font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:auto;}
+.ab-today{background:var(--g-pale);color:var(--g-deep);}
+.ab-week{background:var(--blue-pale);color:var(--blue);}
+.ab-month{background:var(--amber-pale);color:var(--amber);}
+.ab-old{display:none;}
+.msg-text{font-size:16px;line-height:1.82;color:var(--ink);white-space:pre-wrap;word-break:break-word;}
+.msg-empty{text-align:center;color:var(--ink-faint);font-size:14px;padding:24px 0;}
+
+/* おくやみカード */
+.cond-card{background:#f7f7f5;border-radius:var(--r-md);border:1px solid #d8d8d2;border-left:4px solid #8a8a84;padding:12px 14px;}
+.cond-meta{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.cond-jichi{font-size:12px;font-weight:700;color:#5a5a56;}
+.cond-date{font-size:11px;color:#9a9a94;font-family:'DM Mono',monospace;}
+.cond-text{font-size:15px;line-height:1.75;color:#333331;white-space:pre-wrap;word-break:break-word;}
+.cond-intro{font-size:12px;color:var(--ink-faint);margin-bottom:12px;line-height:1.6;background:#f7f7f5;border-radius:var(--r-sm);padding:10px 12px;}
+
+/* いいねボタン（localStorage のみ・読み取り専用テスト）*/
+.msg-footer{display:flex;align-items:center;justify-content:flex-end;margin-top:10px;}
+.like-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px;font-family:inherit;cursor:pointer;color:var(--ink-faint);transition:all 0.15s;}
+.like-btn:hover{border-color:#e05a7a;color:#e05a7a;background:#fff0f4;}
+.like-btn.liked{border-color:#e05a7a;color:#e05a7a;background:#fff0f4;}
+.like-count{font-weight:700;font-size:13px;}
+@keyframes heart-pop{0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1);}}
+.like-btn.liked .like-heart{animation:heart-pop 0.25s ease;}
+
+/* ━━━━━━━━━━ サイドメニュー ━━━━━━━━━━ */
+.menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;}
+.menu-overlay.open{display:block;}
+.side-menu{position:fixed;top:0;left:-320px;bottom:0;width:300px;background:#fff;z-index:201;transition:left 0.25s ease;display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
+.side-menu.open{left:0;}
+.menu-hdr{background:var(--g-deep);padding:16px;display:flex;align-items:center;justify-content:space-between;}
+.menu-hdr h2{font-size:15px;color:#fff;font-family:'Noto Serif JP',serif;}
+.menu-close{background:rgba(255,255,255,0.15);border:none;border-radius:6px;color:#fff;font-size:16px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.menu-body{flex:1;overflow-y:auto;padding:6px 0;}
+.menu-sec{font-size:12px;font-weight:700;letter-spacing:0.05em;color:var(--ink-faint);padding:10px 16px 4px;text-transform:uppercase;}
+.menu-item{display:flex;align-items:center;gap:8px;padding:11px 16px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);transition:background 0.1s;}
+.menu-item:hover{background:var(--g-faint);}
+.menu-item.active{background:var(--g-pale);font-weight:700;color:var(--g-deep);}
+.menu-num{font-size:12px;color:var(--ink-faint);font-family:'DM Mono',monospace;min-width:26px;flex-shrink:0;}
+.menu-name-text{flex:1;}
+.menu-badge{font-size:12px;padding:2px 8px;border-radius:10px;font-weight:700;flex-shrink:0;}
+
+/* ━━━━━━━━━━ スピナー ━━━━━━━━━━ */
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--g-mid);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-wrap{padding:60px 0;text-align:center;}
+.loading-txt{color:var(--ink-faint);font-size:13px;}
+
+/* ━━━━━━━━━━ 読み取り専用バナー ━━━━━━━━━━ */
+.readonly-banner{
+  background:#f0f8ff;border:1.5px solid #b0d4f0;
+  border-radius:var(--r-md);padding:8px 14px;
+  font-size:11px;color:#2a5c80;
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:12px;
+}
+
+/* ━━━━━━━━━━ 管理者UI（j_testのみ）━━━━━━━━━━ */
+.admin-open-btn{
+  display:block;width:100%;margin:12px 0;
+  background:none;border:1.5px dashed #bbb;border-radius:var(--r-md);
+  padding:8px 16px;font-size:12px;font-weight:500;color:var(--ink-faint);
+  font-family:inherit;cursor:pointer;text-align:center;transition:all 0.15s;
+}
+.admin-open-btn:hover{border-color:var(--g-mid);color:var(--g-mid);}
+.admin-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.55);align-items:center;justify-content:center;padding:20px;
+}
+.admin-overlay.open{display:flex;}
+.admin-modal{
+  background:#fff;border-radius:var(--r-lg);padding:24px;
+  width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,0.2);
+}
+.admin-modal h3{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.admin-modal p{font-size:12px;color:var(--ink-faint);margin-bottom:16px;}
+.admin-pass-input{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);
+  font-size:15px;font-family:inherit;outline:none;transition:border-color 0.15s;
+}
+.admin-pass-input:focus{border-color:var(--g-mid);}
+.admin-login-err{display:none;color:var(--red);font-size:12px;margin-top:8px;}
+.admin-modal-btns{display:flex;gap:8px;margin-top:16px;}
+.admin-modal-btns .btn-login{
+  flex:1;background:var(--g-deep);color:#fff;border:none;border-radius:var(--r-md);
+  padding:11px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;
+}
+.admin-modal-btns .btn-cancel{
+  background:#f0f0f0;color:var(--ink-mid);border:none;border-radius:var(--r-md);
+  padding:11px 18px;font-size:14px;font-family:inherit;cursor:pointer;
+}
+.admin-panel{
+  background:linear-gradient(135deg,#fff8f0,#fffdf5);
+  border:1.5px solid #f0c97a;border-radius:var(--r-lg);
+  padding:16px;margin:12px 0;
+}
+.admin-panel-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;font-weight:700;color:var(--amber);margin-bottom:14px;
+  padding-bottom:10px;border-bottom:1px solid #f0dca0;
+}
+.admin-panel-hdr .btn-logout{
+  background:none;border:1px solid #f0c97a;border-radius:8px;
+  padding:3px 10px;font-size:11px;color:var(--amber);cursor:pointer;font-family:inherit;
+}
+.admin-section{margin-bottom:14px;}
+.admin-section label{display:block;font-size:12px;font-weight:700;color:var(--ink-mid);margin-bottom:6px;}
+.admin-textarea{
+  width:100%;padding:10px 12px;border:1.5px solid #e8d9a0;border-radius:var(--r-md);
+  font-size:14px;font-family:inherit;resize:vertical;min-height:80px;
+  background:#fffef8;outline:none;transition:border-color 0.15s;
+}
+.admin-textarea:focus{border-color:var(--amber);}
+.admin-priority-row{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-mid);margin-top:6px;}
+.admin-submit-btn{
+  margin-top:10px;width:100%;background:var(--g-deep);color:#fff;
+  border:none;border-radius:var(--r-md);padding:10px;
+  font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity 0.15s;
+}
+.admin-submit-btn:active{opacity:0.8;}
+.admin-file-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.admin-upload-btn{
+  background:#fff;border:1.5px solid #e8d9a0;border-radius:var(--r-md);
+  padding:7px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--ink-mid);
+}
+.upload-status{font-size:12px;color:var(--g-mid);margin-top:6px;word-break:break-all;}
+.upload-status.err{color:var(--red);}
+</style>
+
+<!-- header -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="logo">
+      <div class="logo-icon">🏘️</div>
+      <div>
+        <div class="logo-title">読谷村 自治会ボード <span class="v2-chip">v2 テスト</span></div>
+        <div class="logo-sub">Yomitan Community Board</div>
+      </div>
+    </div>
+    <button class="menu-btn" onclick="openMenu()">⭐ お気に入り</button>
+  </div>
+</header>
+
+<div class="menu-overlay" id="menu-overlay" onclick="closeMenu()"></div>
+<nav class="side-menu" id="side-menu">
+  <div class="menu-hdr">
+    <h2>⭐ お気に入り</h2>
+    <button class="menu-close" onclick="closeMenu()">✕</button>
+  </div>
+  <div class="menu-body" id="menu-body"></div>
+</nav>
+
+<main class="main" id="main-content">
+  <div class="loading-wrap"><div class="spinner"></div><div class="loading-txt">読み込み中...</div></div>
+</main>
+
+<!-- 管理者ログインモーダル（j_testのみ使用） -->
+<div class="admin-overlay" id="admin-overlay" onclick="if(event.target===this)closeAdminLogin()">
+  <div class="admin-modal">
+    <h3>🔐 管理者ログイン</h3>
+    <p>架空テスト自治会（j_test）専用です。<br>他の自治会への管理者ログインはこの画面からはできません。</p>
+    <input class="admin-pass-input" id="admin-pass-field" type="password"
+      placeholder="テスト管理者パスワード"
+      onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <div class="admin-login-err" id="admin-login-err">パスワードが違います</div>
+    <div class="admin-modal-btns">
+      <button class="btn-login" onclick="doAdminLogin()">ログイン</button>
+      <button class="btn-cancel" onclick="closeAdminLogin()">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ━━━━━ Firebase設定 ━━━━━ */
+var FB_CFG = {
+  apiKey: "AIzaSyBuqb9l1sNOC8rV5bnbsB0IGQY02mm7NOk",
+  authDomain: "yomitan-jichikai-board.firebaseapp.com",
+  projectId: "yomitan-jichikai-board",
+  storageBucket: "yomitan-jichikai-board.firebasestorage.app",
+  messagingSenderId: "374597777571",
+  appId: "1:374597777571:web:a2937dfb13b8f11b226716"
+};
+
+/* ━━━━━ 自治会マスター ━━━━━ */
+var JICHIKAI = [
+  {id:"j01",name:"長浜自治会",addr:"読谷村字長浜",lat:26.4218262,lng:127.7384241,hp:"",sns:""},
+  {id:"j02",name:"瀬名波自治会",addr:"読谷村字瀬名波",lat:26.4207398,lng:127.7312578,hp:"",sns:""},
+  {id:"j03",name:"宇座自治会",addr:"読谷村字長浜",lat:26.4125618,lng:127.7328,hp:"",sns:""},
+  {id:"j04",name:"儀間自治会",addr:"読谷村字長浜",lat:26.4161338,lng:127.7291517,hp:"",sns:""},
+  {id:"j05",name:"渡慶次自治会",addr:"読谷村字渡慶次",lat:26.4206609,lng:127.7265009,hp:"https://tokeshizichikai.com",sns:""},
+  {id:"j06",name:"高志保自治会",addr:"読谷村字高志保",lat:26.4093286,lng:127.7334781,hp:"",sns:""},
+  {id:"j07",name:"波平自治会",addr:"読谷村字波平",lat:26.4056167,lng:127.733921,hp:"",sns:""},
+  {id:"j08",name:"上地自治会",addr:"読谷村字上地",lat:26.4025552,lng:127.7380729,hp:"",sns:""},
+  {id:"j09",name:"都屋自治会",addr:"読谷村字都屋",lat:26.3918624,lng:127.7264575,hp:"",sns:""},
+  {id:"j10",name:"喜名自治会",addr:"読谷村字喜名",lat:26.3990503,lng:127.7567113,hp:"https://m.facebook.com/kinakouminkan/",sns:""},
+  {id:"j11",name:"親志自治会",addr:"読谷村字座喜味",lat:26.4028566,lng:127.7548829,hp:"",sns:""},
+  {id:"j12",name:"座喜味自治会",addr:"読谷村字座喜味",lat:26.4046064,lng:127.744139,hp:"",sns:""},
+  {id:"j13",name:"横田自治会",addr:"読谷村字座喜味",lat:26.4056327,lng:127.7561202,hp:"",sns:""},
+  {id:"j14",name:"楚辺自治会",addr:"読谷村字楚辺",lat:26.3857137,lng:127.7271317,hp:"",sns:""},
+  {id:"j15",name:"大添自治会",addr:"読谷村字楚辺",lat:26.3875181,lng:127.7376736,hp:"",sns:""},
+  {id:"j16",name:"大木自治会",addr:"読谷村字大木",lat:26.3808349,lng:127.7463291,hp:"",sns:""},
+  {id:"j17",name:"伊良皆自治会",addr:"読谷村字伊良皆",lat:26.3848176,lng:127.7538245,hp:"",sns:""},
+  {id:"j18",name:"牧原自治会",addr:"読谷村字比謝",lat:26.3802659,lng:127.7514085,hp:"",sns:""},
+  {id:"j19",name:"長田自治会",addr:"読谷村字大木",lat:26.3816344,lng:127.7486171,hp:"",sns:""},
+  {id:"j20",name:"渡具知自治会",addr:"読谷村字渡具知",lat:26.3651527,lng:127.7398094,hp:"",sns:""},
+  {id:"j21",name:"古堅自治会",addr:"読谷村字古堅",lat:26.3694527,lng:127.7504828,hp:"",sns:""},
+  {id:"j22",name:"大湾自治会",addr:"読谷村字大湾",lat:26.372093,lng:127.754191,hp:"",sns:""},
+  {id:"j23",name:"比謝矼自治会",addr:"読谷村字比謝矼",lat:26.3718906,lng:127.7548071,hp:"",sns:""},
+  {id:"j24",name:"比謝自治会",addr:"読谷村字比謝",lat:26.3747406,lng:127.7543108,hp:"",sns:""},
+  /* ─── 架空テスト用（実データに影響しない） ─── */
+  {id:"j_test",name:"🧪 架空テスト自治会",addr:"読谷村テスト環境（架空データ）",lat:26.4000,lng:127.7450,hp:"https://example.com",instagram:"https://www.instagram.com/",youtube:"https://www.youtube.com/",facebook:"https://www.facebook.com/",sns:""}
+];
+
+/* ━━━━━ アプリ状態 ━━━━━ */
+var db=null, storage=null, firebaseOk=false;
+var userLat=null, userLng=null;
+var currentView="list"; // "list"|"board"
+var boardJid=null;
+var currentBoardTab="notice";
+var msgCache={}, msgListeners={};
+var condCache={}, condListeners={};
+var naRefreshed=false;
+
+/* ━━━━━ テスト管理者状態（j_testのみ） ━━━━━ */
+var isTestAdmin=false;
+var TEST_ADMIN_PASS="yomitan-test2025"; // ←このパスワードはテスト用途限定
+
+/* ━━━━━ localStorage ユーティリティ ━━━━━ */
+var MAX_FAV=3;
+function getFavList(){try{return JSON.parse(localStorage.getItem("fav_jids")||"[]");}catch(e){return[];}}
+function saveFavList(a){try{localStorage.setItem("fav_jids",JSON.stringify(a));}catch(e){}}
+function isFav(jid){return getFavList().indexOf(jid)>=0;}
+function addFav(jid){var l=getFavList();if(l.indexOf(jid)>=0||l.length>=MAX_FAV)return;l.push(jid);saveFavList(l);}
+function removeFav(jid){saveFavList(getFavList().filter(function(id){return id!==jid;}));}
+function toggleFav(jid){if(isFav(jid)){removeFav(jid);}else if(getFavList().length<MAX_FAV){addFav(jid);}else{return false;}return true;}
+
+/* いいね（localStorage専用 — 閲覧テスト用） */
+function getLikedSet(){try{return JSON.parse(localStorage.getItem("liked_v2")||"[]");}catch(e){return[];}}
+function isLiked(mid){return getLikedSet().indexOf(mid)>=0;}
+function toggleLikeLocal(mid){
+  var s=getLikedSet();
+  if(s.indexOf(mid)>=0){s=s.filter(function(x){return x!==mid;});}else{s.push(mid);}
+  try{localStorage.setItem("liked_v2",JSON.stringify(s));}catch(e){}
+  return s.indexOf(mid)>=0;
+}
+
+/* ━━━━━ Firebase ━━━━━ */
+function showCspBanner(){
+  var b=document.createElement("div");
+  b.style.cssText="position:fixed;top:0;left:0;right:0;z-index:9999;background:#e65100;color:#fff;font-size:13px;padding:10px 16px;text-align:center;line-height:1.5;";
+  b.innerHTML="⚠️ <strong>プレビュー環境では Firebase が読み込めません。</strong><br>HTMLファイルをダウンロードしてブラウザで開くと、実際のデータが表示されます。";
+  document.body.prepend(b);
+  document.body.style.paddingTop=(b.offsetHeight+4)+"px";
+}
+function initFirebase(){
+  if(typeof firebase==="undefined"){
+    console.warn("Firebase SDK not loaded (likely CSP in preview).");
+    showCspBanner();
+    renderListView();
+    return;
+  }
+  try{
+    firebase.initializeApp(FB_CFG);
+    db=firebase.firestore();
+    if(typeof firebase.storage==="function"){storage=firebase.storage();}
+    firebaseOk=true;
+  }catch(e){console.error(e);showCspBanner();}
+  renderListView();
+  JICHIKAI.forEach(function(j){subscribeMsgs(j.id);subscribeCond(j.id);});
+}
+function subscribeMsgs(jid){
+  if(!firebaseOk||msgListeners[jid])return;
+  var q=db.collection("messages").where("jichiId","==",jid).orderBy("timestamp","desc").limit(10);
+  msgListeners[jid]=q.onSnapshot(function(snap){
+    msgCache[jid]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    onDataUpdate(jid);
+  });
+}
+function subscribeCond(jid){
+  if(!firebaseOk||condListeners[jid])return;
+  var q=db.collection("condolences").where("jichiId","==",jid).orderBy("timestamp","desc").limit(10);
+  condListeners[jid]=q.onSnapshot(function(snap){
+    condCache[jid]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    if(currentView==="board"&&boardJid===jid&&currentBoardTab==="condolence") refreshBoardCond();
+    refreshMenuBadge(jid);
+  });
+}
+function getMsgs(jid){return msgCache[jid]||[];}
+function getConds(jid){return condCache[jid]||[];}
+
+function onDataUpdate(jid){
+  refreshGridCard(jid);
+  refreshMenuBadge(jid);
+  refreshFavBanners();
+  refreshNewArrivals();
+  refreshPartDots();
+  if(currentView==="board"&&boardJid===jid&&currentBoardTab==="notice") refreshBoardNotice();
+}
+
+/* ━━━━━ ユーティリティ ━━━━━ */
+function calcDist(a,b,c,d){
+  var R=6371000,dlat=(c-a)*Math.PI/180,dlng=(d-b)*Math.PI/180;
+  var x=Math.sin(dlat/2)*Math.sin(dlat/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dlng/2)*Math.sin(dlng/2);
+  return Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));
+}
+function fmtDist(m){return m<1000?{n:m,u:"m"}:{n:(m/1000).toFixed(1),u:"km"};}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function tsToDate(ts){return ts&&ts.toDate?ts.toDate():new Date(ts);}
+function fmtTs(ts){var d=tsToDate(ts);return d.toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"});}
+
+function tsAge(ts){
+  var h=(Date.now()-tsToDate(ts).getTime())/3600000;
+  if(h<24)return"today";if(h<168)return"week";if(h<720)return"month";return"old";
+}
+function latestAge(jid){
+  var m=getMsgs(jid);return m.length?tsAge(m[0].timestamp):"none";
+}
+function daysSince(jid){
+  var m=getMsgs(jid);if(!m.length)return null;
+  return Math.floor((Date.now()-tsToDate(m[0].timestamp).getTime())/(1000*3600*24));
+}
+function daysLabel(jid){
+  var d=daysSince(jid);
+  if(d===null)return{cls:"days-none",label:"未投稿"};
+  if(d===0)return{cls:"days-today",label:"今日"};
+  if(d<7)return{cls:"days-week",label:d+"日前"};
+  if(d<30)return{cls:"days-month",label:d+"日前"};
+  return{cls:"days-old",label:d+"日前"};
+}
+
+function linkify(t){
+  return esc(t).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--g-deep)">$1</a>');
+}
+
+/* ━━━━━ 参加リスト（プログレスバー＋集計チップ）━━━━━ */
+function buildPartSection(){
+  var cntToday=0,cntWeek=0,cntMonth=0,cntNone=0;
+  JICHIKAI.forEach(function(j){
+    var a=latestAge(j.id);
+    if(a==="today")cntToday++;
+    else if(a==="week")cntWeek++;
+    else if(a==="month")cntMonth++;
+    else cntNone++;
+  });
+  var cntActive=cntToday+cntWeek+cntMonth;
+  var pct=Math.round(cntActive/JICHIKAI.length*100);
+  var total=JICHIKAI.length;
+  var nowD=new Date();var sinceD=new Date(nowD.getTime()-30*24*3600000);
+  var rangeLabel=(sinceD.getMonth()+1)+'/'+sinceD.getDate()+'〜'+(nowD.getMonth()+1)+'/'+nowD.getDate();
+  return'<div class="part-card">'
+    +'<div class="part-header">'
+    +'<div class="part-title">📋 直近30日の発信状況</div>'
+    +'<div class="part-fraction">'+total+'中 '+cntActive+'件</div>'
+    +'</div>'
+    +'<div class="part-bar-wrap">'
+    +'<div class="part-bar-track">'
+    +'<div class="part-bar-seg" style="width:'+(cntToday/total*100).toFixed(1)+'%;background:var(--g-deep)"></div>'
+    +'<div class="part-bar-seg" style="width:'+(cntWeek/total*100).toFixed(1)+'%;background:var(--blue)"></div>'
+    +'<div class="part-bar-seg" style="width:'+(cntMonth/total*100).toFixed(1)+'%;background:var(--amber)"></div>'
+    +'</div>'
+    +'<div class="part-bar-label">発信期間：'+rangeLabel+'（直近30日）</div>'
+    +'</div>'
+    +'<div class="part-chips">'
+    +'<div class="part-chip chip-today"><span class="chip-dot" style="background:var(--g-mid)"></span>今日 <strong>'+cntToday+'</strong></div>'
+    +'<div class="part-chip chip-week"><span class="chip-dot" style="background:var(--blue)"></span>今週 <strong>'+cntWeek+'</strong></div>'
+    +'<div class="part-chip chip-month"><span class="chip-dot" style="background:var(--amber)"></span>〜30日前 <strong>'+cntMonth+'</strong></div>'
+    +'<div class="part-chip chip-none"><span class="chip-dot" style="background:#ccc"></span>未発信 <strong>'+cntNone+'</strong></div>'
+    +'</div>'
+    +'</div>';
+}
+function refreshPartDots(){
+  var el=document.getElementById("part-card-container");
+  if(el)el.innerHTML=buildPartSection();
+}
+
+/* ━━━━━ 付箋グリッドカード（改善案 2・3）━━━━━ */
+function buildStickyCard(j,distM,showDist){
+  var age=latestAge(j.id);
+  var msgs=getMsgs(j.id);
+  var cnt=msgs.length;
+  var dl=daysLabel(j.id);
+  var fav=isFav(j.id);
+  var bdCls="bd-"+age;
+  var ageLabel=age==="today"?"今日更新":age==="week"?"今週更新":age==="month"?"今月更新":age==="old"?"1ヶ月以上前":"まだ投稿なし";
+  var distHtml="";
+  if(showDist&&distM!==null){var d=fmtDist(distM);distHtml='<span style="font-size:9.5px;color:var(--ink-faint);font-family:\'DM Mono\',monospace;">📍'+d.n+d.u+'</span> ';}
+  var preview="";
+  if(cnt){var pt=msgs[0].text.replace(/\n/g," ").trim();preview=pt.length>28?pt.slice(0,28)+"…":pt;}
+  return'<div class="sticky-card fresh-'+age+(fav?" fav-card":"")+'\" id="sc-'+j.id+'" onclick="openBoard(\''+j.id+'\')">'
+    +'<div class="sticky-top-bar"></div>'
+    +'<div class="sticky-body">'
+    +'<div class="sticky-days '+dl.cls+'" style="position:absolute;top:14px;right:9px;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:8px;">'+dl.label+'</div>'
+    +(fav?'<div style="position:absolute;top:12px;left:9px;font-size:11px;">⭐</div>':'')
+    +'<div class="sticky-name" style="padding-right:52px'+(fav?';padding-left:18px':'')+'">'+(distHtml)+esc(j.name)+'</div>'
+    +'<span class="sticky-badge '+bdCls+'">'+ageLabel+'</span>'
+    +'<div class="sticky-count">'+(cnt?cnt+'件の投稿':'投稿なし')+'</div>'
+    +(preview?'<div class="sticky-preview">'+esc(preview)+'</div>':'')
+    +'</div>'
+    +'</div>';
+}
+function refreshGridCard(jid){
+  var j=JICHIKAI.find(function(x){return x.id===jid;});
+  var el=document.getElementById("sc-"+jid);
+  if(!el||!j)return;
+  var distM=null;
+  if(userLat){try{distM=calcDist(userLat,userLng,j.lat,j.lng);}catch(e){}}
+  var showDist=userLat!==null;
+  el.outerHTML=buildStickyCard(j,distM,showDist);
+}
+
+/* ━━━━━ 新着情報 ━━━━━ */
+function getNewArrivals(){
+  var r=[];
+  JICHIKAI.forEach(function(j){
+    var m=getMsgs(j.id);if(!m.length)return;
+    var age=tsAge(m[0].timestamp);
+    if(age==="today"||age==="week") r.push({jid:j.id,name:j.name,age:age,ts:m[0].timestamp});
+  });
+  r.sort(function(a,b){return tsToDate(b.ts).getTime()-tsToDate(a.ts).getTime();});
+  return r.slice(0,10);
+}
+function buildNewArrivals(){
+  var items=getNewArrivals();
+  var emptyMsg=naRefreshed?'今週の新着はまだありません':'再取得ボタンを押して更新してください';
+  var rows=items.length
+    ?items.map(function(it){
+        return'<div class="na-item" onclick="openBoard(\''+it.jid+'\')">'
+          +'<span class="na-age '+(it.age==="today"?"t":"w")+'">'+(it.age==="today"?"今日":"今週")+'</span>'
+          +'<span class="na-name">'+esc(it.name)+'</span>'
+          +'<span class="na-time">'+fmtTs(it.ts)+'</span>'
+          +'<span class="na-arr">›</span>'
+          +'</div>';
+      }).join('')
+    :'<div class="na-empty">'+emptyMsg+'</div>';
+  return'<div class="na-section">'
+    +'<div class="na-hdr">'
+    +'<div class="na-title">🔔 新着情報</div>'
+    +'<div style="display:flex;align-items:center;gap:8px">'
+    +(items.length?'<span class="na-cnt">'+items.length+'件</span>':'')
+    +'<button class="na-refresh-btn" id="na-refresh-btn" onclick="triggerRefresh()">'
+    +'<span class="na-refresh-icon">↻</span> 再取得'
+    +'</button>'
+    +'</div>'
+    +'</div>'
+    +rows
+    +'</div>';
+}
+function refreshNewArrivals(){
+  var el=document.getElementById("na-container");if(el)el.innerHTML=buildNewArrivals();
+}
+function triggerRefresh(){
+  var btn=document.getElementById("na-refresh-btn");
+  if(btn)btn.classList.add("spinning");
+  setTimeout(function(){naRefreshed=true;refreshNewArrivals();},600);
+}
+
+/* ━━━━━ メニュー ━━━━━ */
+function buildMenu(){
+  var fav=getFavList();
+  var h="";
+  h+='<div class="menu-sec">⭐ お気に入りの自治会</div>';
+  if(fav.length){
+    fav.forEach(function(jid){
+      var j=JICHIKAI.find(function(x){return x.id===jid;});
+      if(!j)return;
+      var age=latestAge(jid);var m=getMsgs(jid);
+      h+='<div class="menu-item'+(boardJid===jid?" active":"")+'\" onclick="openBoard(\''+jid+'\');closeMenu()">'
+        +'<span style="font-size:16px">⭐</span>'
+        +'<span class="menu-name-text">'+esc(j.name)+'</span>'
+        +(m.length?'<span class="menu-badge bd-'+age+'">'+m.length+'件</span>':'')
+        +'</div>';
+    });
+    h+='<div style="padding:12px 16px;font-size:11px;color:var(--ink-faint);border-top:1px solid var(--border);margin-top:4px;">'
+      +'お気に入りは最大3件まで登録できます（'+(3-fav.length)+'件空き）。<br>各自治会ボードの右上から登録・解除できます。'
+      +'</div>';
+  }else{
+    h+='<div style="padding:32px 16px;text-align:center;color:#aaa;font-size:13px;line-height:1.9;">'
+      +'<div style="font-size:32px;margin-bottom:10px">⭐</div>'
+      +'お気に入りの自治会はまだありません。<br>自治会ボードを開いて<br>右上の「☆ お気に入り登録」から<br>追加できます。'
+      +'</div>';
+  }
+  document.getElementById("menu-body").innerHTML=h;
+}
+function refreshMenuBadge(jid){
+  var el=document.getElementById("mi-"+jid);if(!el)return;
+  var m=getMsgs(jid);var age=latestAge(jid);
+  var b=el.querySelector(".menu-badge");
+  if(m.length){
+    if(b){b.className="menu-badge bd-"+age;b.textContent=m.length+"件";}
+    else{var sp=document.createElement("span");sp.className="menu-badge bd-"+age;sp.textContent=m.length+"件";el.appendChild(sp);}
+  }
+}
+function openMenu(){buildMenu();document.getElementById("side-menu").classList.add("open");document.getElementById("menu-overlay").classList.add("open");}
+function closeMenu(){document.getElementById("side-menu").classList.remove("open");document.getElementById("menu-overlay").classList.remove("open");}
+
+/* ━━━━━ リスト表示 ━━━━━ */
+function refreshFavBanners(){
+  var el=document.getElementById("fav-banners");if(!el)return;
+  el.innerHTML=buildFavBanners();
+}
+function buildFavBanners(){
+  var favList=getFavList();
+  if(!favList.length)return"";
+  return favList.map(function(jid){
+    var j=JICHIKAI.find(function(x){return x.id===jid;});if(!j)return"";
+    var m=getMsgs(jid);
+    return'<div class="fav-banner" onclick="openBoard(\''+jid+'\')">'
+      +'<span class="fav-banner-icon">⭐</span>'
+      +'<div class="fav-banner-info">'
+      +'<div style="font-size:10px;color:rgba(255,255,255,0.7);font-weight:700;">お気に入りの自治会</div>'
+      +'<div class="fav-banner-name">'+esc(j.name)+'</div>'
+      +'</div>'
+      +'<span class="fav-banner-badge">'+m.length+'件</span>'
+      +'<span class="fav-banner-arrow">›</span>'
+      +'</div>';
+  }).join("");
+}
+
+function renderListView(){
+  currentView="list";boardJid=null;
+  var h="";
+
+  // 読み取り専用バナー
+  h+='<div class="readonly-banner">🔒 テスト閲覧モード — データは読み取り専用です。編集は行われません。</div>';
+
+  // お気に入りバナー
+  h+='<div id="fav-banners">'+buildFavBanners()+'</div>';
+
+  // 現在地バー
+  h+='<div class="loc-bar">'
+    +'<span style="font-size:16px">📍</span>'
+    +'<div class="loc-text">'+(userLat?'<strong>現在地を取得しました</strong>':"現在地を取得してください")+'</div>'
+    +'<button class="loc-btn" onclick="getLocation()">'+(userLat?'再取得':'現在地を取得')+'</button>'
+    +'</div>';
+
+  // 新着情報
+  h+='<div id="na-container">'+buildNewArrivals()+'</div>';
+
+  // 今月の発信状況（新着情報の下）
+  h+='<div id="part-card-container">'+buildPartSection()+'</div>';
+
+  // 付箋グリッド
+  h+='<div class="sec-label">🏘️ 自治会ボード一覧</div>';
+  h+='<div class="sticky-grid" id="sticky-grid">';
+
+  // GPS取得済みなら距離順、そうでなければ番号順
+  var list=JICHIKAI.map(function(j){
+    var dist=userLat?calcDist(userLat,userLng,j.lat,j.lng):null;
+    return Object.assign({},j,{dist:dist});
+  });
+  if(userLat) list.sort(function(a,b){return a.dist-b.dist;});
+
+  list.forEach(function(j){
+    h+=buildStickyCard(j,j.dist,userLat!==null);
+  });
+  h+='</div>';
+
+  document.getElementById("main-content").innerHTML=h;
+}
+
+/* ━━━━━ ボード表示 ━━━━━ */
+function openBoard(jid){
+  boardJid=jid;currentView="board";currentBoardTab="notice";
+  subscribeMsgs(jid);subscribeCond(jid);
+  renderBoardView();
+  window.scrollTo(0,0);
+}
+
+function renderBoardView(){
+  var j=JICHIKAI.find(function(x){return x.id===boardJid;});if(!j)return;
+  var msgs=getMsgs(boardJid);var conds=getConds(boardJid);
+
+  var links="";
+  if(j.hp)links+='<a class="detail-link-btn" href="'+esc(j.hp)+'" target="_blank" rel="noopener">'+svgIcon('globe')+' HP</a>';
+  if(j.instagram)links+='<a class="detail-link-btn lnk-ig" href="'+esc(j.instagram)+'" target="_blank" rel="noopener">'+svgIcon('instagram')+' Instagram</a>';
+  if(j.youtube)links+='<a class="detail-link-btn lnk-yt" href="'+esc(j.youtube)+'" target="_blank" rel="noopener">'+svgIcon('youtube')+' YouTube</a>';
+  if(j.facebook)links+='<a class="detail-link-btn lnk-fb" href="'+esc(j.facebook)+'" target="_blank" rel="noopener">'+svgIcon('facebook')+' Facebook</a>';
+
+  var h='<div style="clearfix:both">';
+  h+='<button class="back-btn" onclick="renderListView()">← 一覧に戻る</button>';
+  h+='<button class="fav-toggle-btn'+(isFav(boardJid)?" is-fav":"")+'\" id="fav-btn" onclick="onFavToggle()">'
+    +(isFav(boardJid)?'⭐ お気に入り済み':'☆ お気に入り登録')+'</button>';
+  h+='</div>';
+  h+='<div class="board-name">'+esc(j.name)+'</div>';
+  h+='<div class="board-meta">'+esc(j.addr)+'</div>';
+
+  if(links)h+='<div class="detail-links">'+links+'</div>';
+
+  /* j_testのみ管理者パネル表示 */
+  if(j.id==="j_test"){
+    if(isTestAdmin){
+      h+='<div class="admin-panel">'
+        +'<div class="admin-panel-hdr">'
+        +'<span>🛠️ テスト管理者パネル（j_test専用）</span>'
+        +'<button class="btn-logout" onclick="doAdminLogout()">ログアウト</button>'
+        +'</div>'
+        +'<div class="admin-section">'
+        +'<label>📝 お知らせを投稿</label>'
+        +'<textarea class="admin-textarea" id="admin-post-text" rows="4" placeholder="投稿内容を入力..."></textarea>'
+        +'<div class="admin-priority-row">'
+        +'<input type="checkbox" id="admin-priority-check" style="width:16px;height:16px;"> 🔴 重要フラグをつける'
+        +'</div>'
+        +'<button class="admin-submit-btn" onclick="doPostMsg()">✉️ 投稿する</button>'
+        +'</div>'
+        +'<div class="admin-section">'
+        +'<label>📷 写真をFirebase Storageへアップロード</label>'
+        +'<div class="admin-file-row">'
+        +'<input type="file" id="admin-photo-input" accept="image/*" style="font-size:13px;flex:1;">'
+        +'<button class="admin-upload-btn" onclick="doUploadPhoto()">アップロード</button>'
+        +'</div>'
+        +'<div class="upload-status" id="upload-status"></div>'
+        +'</div>'
+        +'</div>';
+    } else {
+      h+='<button class="admin-open-btn" onclick="openAdminLogin()">🔐 管理者ログイン（テスト環境専用）</button>';
+    }
+  }
+
+  h+='<div class="board-tabs">'
+    +'<button class="board-tab active t-notice" id="tab-notice" onclick="switchBoardTab(\'notice\')">'
+    +'📢 お知らせ<span class="tab-cnt notice" id="tc-notice">'+msgs.length+'件</span>'
+    +'</button>'
+    +'<button class="board-tab t-cond" id="tab-cond" onclick="switchBoardTab(\'condolence\')">'
+    +'🕊️ おくやみ<span class="tab-cnt cond" id="tc-cond">'+conds.length+'件</span>'
+    +'</button>'
+    +'</div>';
+
+  h+='<div id="board-notice"><div class="msg-list" id="ml-notice">'+buildMsgList(boardJid,j.name)+'</div></div>';
+  h+='<div id="board-cond" hidden><div class="msg-list" id="ml-cond">'+buildCondList(boardJid,j.name)+'</div></div>';
+
+  document.getElementById("main-content").innerHTML=h;
+}
+
+function switchBoardTab(tab){
+  currentBoardTab=tab;
+  document.getElementById("tab-notice").classList.toggle("active",tab==="notice");
+  document.getElementById("tab-notice").classList.toggle("t-notice",tab==="notice");
+  document.getElementById("tab-cond").classList.toggle("active",tab==="condolence");
+  document.getElementById("tab-cond").classList.toggle("t-cond",tab==="condolence");
+  document.getElementById("board-notice").hidden=(tab!=="notice");
+  document.getElementById("board-cond").hidden=(tab!=="condolence");
+}
+function refreshBoardNotice(){
+  var j=JICHIKAI.find(function(x){return x.id===boardJid;});if(!j)return;
+  var el=document.getElementById("ml-notice");if(el)el.innerHTML=buildMsgList(boardJid,j.name);
+  var tc=document.getElementById("tc-notice");if(tc)tc.textContent=getMsgs(boardJid).length+"件";
+}
+function refreshBoardCond(){
+  var j=JICHIKAI.find(function(x){return x.id===boardJid;});if(!j)return;
+  var el=document.getElementById("ml-cond");if(el)el.innerHTML=buildCondList(boardJid,j.name);
+  var tc=document.getElementById("tc-cond");if(tc)tc.textContent=getConds(boardJid).length+"件";
+}
+
+/* ━━━━━ お気に入りトグル ━━━━━ */
+function onFavToggle(){
+  var ok=toggleFav(boardJid);
+  var btn=document.getElementById("fav-btn");
+  if(btn){
+    var now=isFav(boardJid);
+    btn.className="fav-toggle-btn"+(now?" is-fav":"");
+    btn.textContent=now?'⭐ お気に入り済み':'☆ お気に入り登録';
+  }
+}
+
+/* ━━━━━ 投稿カードHTML（改善案 1 鮮度）━━━━━ */
+function buildMsgList(jid,name){
+  var msgs=getMsgs(jid);
+  if(!msgs.length)return'<div class="msg-empty">📭 まだお知らせはありません</div>';
+  return msgs.map(function(m){
+    var age=tsAge(m.timestamp);
+    var ageCls="ab-"+age;
+    var ageLabel=age==="today"?"今日":age==="week"?"今週":age==="month"?"今月":"";
+    var isHigh=(m.priority==="high");
+    var freshCls="fresh-"+age;
+    var cardCls="msg-card "+freshCls+(isHigh?" priority-high":"");
+    var liked=isLiked(m.id);
+    return'<div class="'+cardCls+'" id="mc-'+m.id+'">'
+      +'<div class="msg-meta">'
+      +(isHigh?'<span class="msg-priority-label">🔴 重要</span>':"")
+      +'<span class="msg-jichi">'+esc(name)+'</span>'
+      +'<span class="msg-time">'+fmtTs(m.timestamp)+'</span>'
+      +(ageLabel?'<span class="msg-age-badge '+ageCls+'">'+ageLabel+'</span>':"")
+      +'</div>'
+      +'<div class="msg-text">'+linkify(m.text)+'</div>'
+      +'<div class="msg-footer">'
+      +'<button class="like-btn'+(liked?" liked":'')+'\" onclick="onLike(\''+m.id+'\')">'
+      +'<span class="like-heart">'+(liked?svgIcon('heart_on'):svgIcon('heart_off'))+'</span>'
+      +'<span class="like-count" id="lc-'+m.id+'">'+(m.likes||0)+'</span>'
+      +'</button>'
+      +'</div>'
+      +'</div>';
+  }).join("");
+}
+function onLike(mid){
+  var now=toggleLikeLocal(mid);
+  var btn=document.querySelector('[onclick="onLike(\''+mid+'\')"]');
+  if(btn){
+    btn.className="like-btn"+(now?" liked":"");
+    var h=btn.querySelector(".like-heart");
+    if(h)h.innerHTML=(now?svgIcon('heart_on'):svgIcon('heart_off'));
+  }
+}
+function buildCondList(jid,name){
+  var items=getConds(jid);
+  if(!items.length)return'<div class="msg-empty">まだおくやみ情報はありません</div>';
+  var intro='<div class="cond-intro">おくやみ情報は自治会からの公式情報です。詳細は各自治会にお問い合わせください。</div>';
+  return intro+items.map(function(m){
+    var d=tsToDate(m.timestamp);
+    var ds=d.toLocaleDateString("ja-JP",{year:"numeric",month:"numeric",day:"numeric"});
+    return'<div class="cond-card">'
+      +'<div class="cond-meta"><span class="cond-jichi">'+esc(name)+'</span><span class="cond-date">'+ds+'</span></div>'
+      +'<div class="cond-text">'+linkify(m.text)+'</div>'
+      +'</div>';
+  }).join("");
+}
+
+/* ━━━━━ GPS ━━━━━ */
+function getLocation(){
+  if(!navigator.geolocation){alert("位置情報が使えません");return;}
+  navigator.geolocation.getCurrentPosition(function(pos){
+    userLat=pos.coords.latitude;userLng=pos.coords.longitude;
+    if(currentView==="list")renderListView();
+  },function(){alert("位置情報の取得に失敗しました");});
+}
+
+/* ━━━━━ 管理者ログイン（j_test専用） ━━━━━ */
+function openAdminLogin(){
+  var ov=document.getElementById("admin-overlay");
+  if(ov){ov.classList.add("open");setTimeout(function(){var f=document.getElementById("admin-pass-field");if(f)f.focus();},80);}
+}
+function closeAdminLogin(){
+  var ov=document.getElementById("admin-overlay");
+  if(ov){ov.classList.remove("open");}
+  var err=document.getElementById("admin-login-err");
+  if(err)err.style.display="none";
+  var f=document.getElementById("admin-pass-field");
+  if(f)f.value="";
+}
+function doAdminLogin(){
+  var f=document.getElementById("admin-pass-field");
+  var err=document.getElementById("admin-login-err");
+  if(!f)return;
+  if(f.value===TEST_ADMIN_PASS){
+    isTestAdmin=true;
+    closeAdminLogin();
+    renderBoardView();
+  } else {
+    f.value="";f.focus();
+    if(err)err.style.display="block";
+  }
+}
+function doAdminLogout(){
+  isTestAdmin=false;
+  renderBoardView();
+}
+
+/* 投稿（Firestore or ローカルキャッシュ） */
+function doPostMsg(){
+  var textEl=document.getElementById("admin-post-text");
+  var priEl=document.getElementById("admin-priority-check");
+  if(!textEl)return;
+  var text=textEl.value.trim();
+  if(!text){textEl.focus();return;}
+  var priority=priEl&&priEl.checked?"high":"";
+
+  if(firebaseOk&&db){
+    db.collection("messages").add({
+      jichiId:"j_test",text:text,priority:priority,
+      timestamp:firebase.firestore.FieldValue.serverTimestamp(),likes:0
+    }).then(function(){
+      textEl.value="";if(priEl)priEl.checked=false;
+    }).catch(function(e){alert("投稿エラー: "+e.message);});
+  } else {
+    /* Firebase未接続時はローカルキャッシュに追加 */
+    var now=Date.now();
+    var localMsg={
+      id:"local_"+now,jichiId:"j_test",text:text,priority:priority,
+      timestamp:{toDate:function(){return new Date(now);}},likes:0
+    };
+    msgCache["j_test"]=[localMsg].concat(msgCache["j_test"]||[]);
+    textEl.value="";if(priEl)priEl.checked=false;
+    refreshBoardNotice();
+  }
+}
+
+/* 写真アップロード（Firebase Storage） */
+function doUploadPhoto(){
+  var fileEl=document.getElementById("admin-photo-input");
+  var statusEl=document.getElementById("upload-status");
+  if(!fileEl||!fileEl.files.length){
+    if(statusEl){statusEl.className="upload-status err";statusEl.textContent="ファイルを選択してください";}
+    return;
+  }
+  if(!storage){
+    if(statusEl){statusEl.className="upload-status err";
+      statusEl.textContent="Firebase Storageが未設定です。下記の手順でStorageを有効化してください。";}
+    return;
+  }
+  var file=fileEl.files[0];
+  var ext=file.name.split(".").pop().toLowerCase();
+  var path="j_test/photos/"+Date.now()+"_"+Math.random().toString(36).slice(2)+"."+ext;
+  var ref=storage.ref(path);
+
+  if(statusEl){statusEl.className="upload-status";statusEl.textContent="アップロード中...";}
+
+  ref.put(file).then(function(snap){return snap.ref.getDownloadURL();})
+  .then(function(url){
+    if(statusEl){
+      statusEl.className="upload-status";
+      statusEl.innerHTML='✅ 完了！ <a href="'+url+'" target="_blank" rel="noopener">画像を確認</a><br>'
+        +'<small style="color:#888;">URLをコピーして投稿文に貼り付けてください</small><br>'
+        +'<code style="font-size:10px;word-break:break-all;">'+url+'</code>';
+    }
+    /* 投稿テキストにURLを自動追記 */
+    var textEl=document.getElementById("admin-post-text");
+    if(textEl){var t=textEl.value;textEl.value=(t?t+"\n":"")+"📷 "+url;}
+    fileEl.value="";
+  }).catch(function(e){
+    if(statusEl){statusEl.className="upload-status err";statusEl.textContent="エラー: "+e.message;}
+  });
+}
+
+/* ━━━━━ SVGアイコンヘルパー ━━━━━ */
+function svgIcon(name){
+  var d={
+    globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+    instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="3"/></svg>',
+    youtube:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon fill="currentColor" stroke="none" points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>',
+    facebook:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+    heart_on:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+    heart_off:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
+  };
+  return d[name]||'';
+}
+
+/* ━━━━━ テスト自治会ダミーデータ ━━━━━ */
+function initTestData(){
+  var now=Date.now();
+  function mts(ago){return{toDate:function(){return new Date(now-ago);}};}
+  msgCache["j_test"]=[
+    {id:"tst_001",jichiId:"j_test",text:"【テスト】定期総会のご案内\n日時：令和7年11月15日（土）10時〜12時\n場所：公民館 大ホール\nご参加のほどよろしくお願いします。",timestamp:mts(1.5*3600*1000),priority:"high",likes:5},
+    {id:"tst_002",jichiId:"j_test",text:"夏祭りの準備ボランティアを募集しています。参加ご希望の方は事務局までご連絡ください。お子様連れも大歓迎です！",timestamp:mts(26*3600*1000),priority:"",likes:12},
+    {id:"tst_003",jichiId:"j_test",text:"○○通り歩道工事のお知らせ：来週月曜から3日間、道路工事が行われます。迂回路をご利用ください。ご不便をおかけします。",timestamp:mts(4*24*3600*1000),priority:"",likes:3}
+  ];
+}
+
+/* ━━━━━ 起動 ━━━━━ */
+window.addEventListener("DOMContentLoaded",function(){initTestData();initFirebase();});
+</script>
+
+</body>
+</html>
