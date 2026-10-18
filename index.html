@@ -106,7 +106,7 @@ body{
   cursor:pointer;transition:opacity 0.15s;
 }
 .fav-banner:hover{opacity:0.92;}
-.fav-banner-icon{font-size:22px;flex-shrink:0;}
+.fav-banner-icon{flex-shrink:0;display:flex;align-items:center;color:rgba(255,255,255,0.9);}
 .fav-banner-info{flex:1;min-width:0;}
 .fav-banner-label{font-size:10px;color:rgba(255,255,255,0.7);font-weight:700;}
 .fav-banner-name{font-size:16px;font-weight:700;color:#fff;font-family:'Noto Serif JP',serif;}
@@ -287,8 +287,8 @@ body{
 .cond-intro{font-size:12px;color:var(--ink-faint);margin-bottom:12px;line-height:1.6;background:#f7f7f5;border-radius:var(--r-sm);padding:10px 12px;}
 
 /* いいねボタン（localStorage のみ・読み取り専用テスト）*/
-.msg-footer{display:flex;align-items:center;justify-content:flex-end;margin-top:10px;}
-.like-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px;font-family:inherit;cursor:pointer;color:var(--ink-faint);transition:all 0.15s;}
+.msg-footer{display:flex;align-items:center;gap:6px;margin-top:10px;}
+.like-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px;font-family:inherit;cursor:pointer;color:var(--ink-faint);transition:all 0.15s;margin-right:auto;}
 .like-btn:hover{border-color:#e05a7a;color:#e05a7a;background:#fff0f4;}
 .like-btn.liked{border-color:#e05a7a;color:#e05a7a;background:#fff0f4;}
 .like-count{font-weight:700;font-size:13px;}
@@ -304,7 +304,7 @@ body{
 .menu-hdr h2{font-size:15px;color:#fff;font-family:'Noto Serif JP',serif;}
 .menu-close{background:rgba(255,255,255,0.15);border:none;border-radius:6px;color:#fff;font-size:16px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .menu-body{flex:1;overflow-y:auto;padding:6px 0;}
-.menu-sec{font-size:12px;font-weight:700;letter-spacing:0.05em;color:var(--ink-faint);padding:10px 16px 4px;text-transform:uppercase;}
+.menu-sec{font-size:12px;font-weight:700;letter-spacing:0.05em;color:var(--ink-faint);padding:10px 16px 4px;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
 .menu-item{display:flex;align-items:center;gap:8px;padding:11px 16px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);transition:background 0.1s;}
 .menu-item:hover{background:var(--g-faint);}
 .menu-item.active{background:var(--g-pale);font-weight:700;color:var(--g-deep);}
@@ -329,7 +329,8 @@ body{
 
 /* ━━━━━━━━━━ 管理者UI（j_testのみ）━━━━━━━━━━ */
 .admin-open-btn{
-  display:block;width:100%;margin:12px 0;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;margin:12px 0;
   background:none;border:1.5px dashed #bbb;border-radius:var(--r-md);
   padding:8px 16px;font-size:12px;font-weight:500;color:var(--ink-faint);
   font-family:inherit;cursor:pointer;text-align:center;transition:all 0.15s;
@@ -376,7 +377,7 @@ body{
   padding:3px 10px;font-size:11px;color:var(--amber);cursor:pointer;font-family:inherit;
 }
 .admin-section{margin-bottom:14px;}
-.admin-section label{display:block;font-size:12px;font-weight:700;color:var(--ink-mid);margin-bottom:6px;}
+.admin-section label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink-mid);margin-bottom:6px;}
 .admin-textarea{
   width:100%;padding:10px 12px;border:1.5px solid #e8d9a0;border-radius:var(--r-md);
   font-size:14px;font-family:inherit;resize:vertical;min-height:80px;
@@ -388,6 +389,7 @@ body{
   margin-top:10px;width:100%;background:var(--g-deep);color:#fff;
   border:none;border-radius:var(--r-md);padding:10px;
   font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
 }
 .admin-submit-btn:active{opacity:0.8;}
 .admin-file-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
@@ -399,8 +401,53 @@ body{
 .upload-status.err{color:var(--red);}
 .msg-photo{margin:8px 0 4px;border-radius:var(--r-sm);overflow:hidden;}
 .msg-photo img{max-width:100%;max-height:240px;object-fit:cover;display:block;border-radius:var(--r-sm);}
-.msg-del-btn{margin-left:auto;padding:4px 10px;font-size:12px;background:none;border:1px solid var(--red,#e53935);color:var(--red,#e53935);border-radius:20px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.msg-del-btn{padding:4px 10px;font-size:12px;background:none;border:1px solid var(--red,#e53935);color:var(--red,#e53935);border-radius:20px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .msg-del-btn:hover{background:#ffebee;}
+.msg-edit-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;font-size:12px;background:none;border:1px solid var(--g-mid);color:var(--g-mid);border-radius:20px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.msg-edit-btn:hover{background:var(--g-faint);}
+/* ━━━━━━━━━━ SVGアイコン サイズ規定 ━━━━━━━━━━ */
+.logo-icon svg{width:22px;height:22px;flex-shrink:0;}
+.menu-btn svg{width:13px;height:13px;flex-shrink:0;}
+.menu-hdr h2{display:flex;align-items:center;gap:8px;}
+.menu-hdr h2 svg{width:16px;height:16px;flex-shrink:0;}
+.menu-close svg{width:16px;height:16px;}
+.menu-sec svg{width:12px;height:12px;flex-shrink:0;}
+.fav-banner-icon svg{width:22px;height:22px;}
+.sec-label svg{width:14px;height:14px;flex-shrink:0;}
+.loc-bar svg{width:16px;height:16px;flex-shrink:0;}
+.readonly-banner svg{width:14px;height:14px;flex-shrink:0;}
+.vc-pill svg{width:13px;height:13px;flex-shrink:0;}
+.na-title svg{width:14px;height:14px;flex-shrink:0;}
+.part-title svg{width:14px;height:14px;flex-shrink:0;}
+.fav-toggle-btn svg{width:13px;height:13px;flex-shrink:0;}
+.board-tab svg{width:14px;height:14px;flex-shrink:0;}
+.admin-modal h3{display:flex;align-items:center;gap:8px;}
+.admin-modal h3 svg{width:18px;height:18px;flex-shrink:0;}
+.admin-section label svg{width:13px;height:13px;flex-shrink:0;}
+.admin-panel-hdr>span{display:inline-flex;align-items:center;gap:6px;}
+.admin-panel-hdr>span svg{width:14px;height:14px;flex-shrink:0;}
+.admin-open-btn svg{width:13px;height:13px;flex-shrink:0;}
+.admin-submit-btn svg{width:13px;height:13px;flex-shrink:0;}
+.admin-priority-row svg{width:12px;height:12px;flex-shrink:0;}
+.msg-priority-label svg{width:10px;height:10px;flex-shrink:0;}
+.msg-del-btn svg{width:12px;height:12px;}
+.msg-edit-btn svg{width:12px;height:12px;}
+.msg-empty{display:flex;flex-direction:column;align-items:center;}
+.msg-empty svg{width:28px;height:28px;margin-bottom:6px;color:var(--ink-faint);}
+/* ━━━━━━━━━━ 編集モーダル ━━━━━━━━━━ */
+.edit-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;padding:20px;}
+.edit-overlay.open{display:flex;}
+.edit-modal{background:#fff;border-radius:var(--r-lg);padding:24px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto;}
+.edit-modal-hdr{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.edit-modal-hdr svg{width:18px;height:18px;color:var(--g-deep);flex-shrink:0;}
+.edit-section{margin-bottom:14px;}
+.edit-section label{display:block;font-size:12px;font-weight:700;color:var(--ink-mid);margin-bottom:6px;}
+.edit-current-photo{margin-bottom:8px;}
+.edit-current-photo img{max-width:100%;max-height:150px;border-radius:var(--r-sm);display:block;}
+.edit-del-photo-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;font-size:11px;background:none;border:1px solid var(--red);color:var(--red);border-radius:12px;cursor:pointer;font-family:inherit;margin-top:4px;}
+.edit-modal-btns{display:flex;gap:8px;margin-top:16px;}
+.edit-modal-btns .btn-save{flex:1;background:var(--g-deep);color:#fff;border:none;border-radius:var(--r-md);padding:11px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;}
+.edit-modal-btns .btn-cancel{background:#f0f0f0;color:var(--ink-mid);border:none;border-radius:var(--r-md);padding:11px 18px;font-size:14px;font-family:inherit;cursor:pointer;}
 
 /* ━━━━━━━━━━ 訪問者カウンター ━━━━━━━━━━ */
 .vc-bar{display:flex;align-items:center;justify-content:flex-end;margin-bottom:10px;}
@@ -419,21 +466,21 @@ body{
 <header class="hdr">
   <div class="hdr-inner">
     <div class="logo">
-      <div class="logo-icon">🏘️</div>
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div>
         <div class="logo-title">読谷村 自治会ボード <span class="v2-chip">v2 テスト</span></div>
         <div class="logo-sub">Yomitan Community Board</div>
       </div>
     </div>
-    <button class="menu-btn" onclick="openMenu()">⭐ お気に入り</button>
+    <button class="menu-btn" onclick="openMenu()"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> お気に入り</button>
   </div>
 </header>
 
 <div class="menu-overlay" id="menu-overlay" onclick="closeMenu()"></div>
 <nav class="side-menu" id="side-menu">
   <div class="menu-hdr">
-    <h2>⭐ お気に入り</h2>
-    <button class="menu-close" onclick="closeMenu()">✕</button>
+    <h2><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> お気に入り</h2>
+    <button class="menu-close" onclick="closeMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div class="menu-body" id="menu-body"></div>
 </nav>
@@ -445,7 +492,7 @@ body{
 <!-- 管理者ログインモーダル（j_testのみ使用） -->
 <div class="admin-overlay" id="admin-overlay" onclick="if(event.target===this)closeAdminLogin()">
   <div class="admin-modal">
-    <h3>🔐 管理者ログイン</h3>
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 管理者ログイン</h3>
     <p>架空テスト自治会（j_test）専用です。<br>他の自治会への管理者ログインはこの画面からはできません。</p>
     <input class="admin-pass-input" id="admin-pass-field" type="password"
       placeholder="テスト管理者パスワード"
@@ -454,6 +501,33 @@ body{
     <div class="admin-modal-btns">
       <button class="btn-login" onclick="doAdminLogin()">ログイン</button>
       <button class="btn-cancel" onclick="closeAdminLogin()">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- 記事編集モーダル（j_test管理者専用） -->
+<div class="edit-overlay" id="edit-overlay" onclick="if(event.target===this)closeEditModal()">
+  <div class="edit-modal">
+    <div class="edit-modal-hdr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 記事を編集</div>
+    <div class="edit-section">
+      <label>内容</label>
+      <textarea class="admin-textarea" id="edit-text" rows="5"></textarea>
+      <div class="admin-priority-row">
+        <input type="checkbox" id="edit-priority-check" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/></svg> 重要フラグをつける
+      </div>
+    </div>
+    <div class="edit-section">
+      <label>写真</label>
+      <div class="edit-current-photo" id="edit-current-photo"></div>
+      <div class="admin-file-row">
+        <input type="file" id="edit-photo-input" accept="image/*" style="font-size:13px;flex:1;">
+        <button class="admin-upload-btn" onclick="doEditUploadPhoto()">差し替え</button>
+      </div>
+      <div class="upload-status" id="edit-upload-status"></div>
+    </div>
+    <div class="edit-modal-btns">
+      <button class="btn-save" onclick="doSaveEdit()">保存</button>
+      <button class="btn-cancel" onclick="closeEditModal()">キャンセル</button>
     </div>
   </div>
 </div>
@@ -517,6 +591,9 @@ var TEST_ADMIN_PASS="yomitan-test2025"; // ←このパスワードはテスト�
 var GAPP_URL="https://script.google.com/macros/s/AKfycbznH3tu2IToLPd1lpFNyD3huFDVxvdkcMCLI2b6Ywby4iOBQ5Up6wNDve-y9xL1l2PL/exec";
 var GAPP_TOKEN="yomitan-photo-2025";
 var pendingPhotoDataUrl=null;
+var editingMsgId=null;
+var editPendingPhotoDataUrl=null;
+var editDeletePhoto=false;
 
 /* ━━━━━ localStorage ユーティリティ ━━━━━ */
 var MAX_FAV=3;
@@ -687,7 +764,7 @@ function buildPartSection(){
   var rangeLabel=(sinceD.getMonth()+1)+'/'+sinceD.getDate()+'〜'+(nowD.getMonth()+1)+'/'+nowD.getDate();
   return'<div class="part-card">'
     +'<div class="part-header">'
-    +'<div class="part-title">📋 直近30日の発信状況</div>'
+    +'<div class="part-title">'+svgIcon('clipboard')+' 直近30日の発信状況</div>'
     +'<div class="part-fraction">'+total+'中 '+cntActive+'件</div>'
     +'</div>'
     +'<div class="part-bar-wrap">'
@@ -721,14 +798,14 @@ function buildStickyCard(j,distM,showDist){
   var bdCls="bd-"+age;
   var ageLabel=age==="today"?"今日更新":age==="week"?"今週更新":age==="month"?"今月更新":age==="old"?"1ヶ月以上前":"まだ投稿なし";
   var distHtml="";
-  if(showDist&&distM!==null){var d=fmtDist(distM);distHtml='<span style="font-size:9.5px;color:var(--ink-faint);font-family:\'DM Mono\',monospace;">📍'+d.n+d.u+'</span> ';}
+  if(showDist&&distM!==null){var d=fmtDist(distM);distHtml='<span style="font-size:9.5px;color:var(--ink-faint);font-family:\'DM Mono\',monospace;display:inline-flex;align-items:center;gap:2px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+d.n+d.u+'</span> ';}
   var preview="";
   if(cnt){var pt=msgs[0].text.replace(/\n/g," ").trim();preview=pt.length>28?pt.slice(0,28)+"…":pt;}
   return'<div class="sticky-card fresh-'+age+(fav?" fav-card":"")+'\" id="sc-'+j.id+'" onclick="openBoard(\''+j.id+'\')">'
     +'<div class="sticky-top-bar"></div>'
     +'<div class="sticky-body">'
     +'<div class="sticky-days '+dl.cls+'" style="position:absolute;top:14px;right:9px;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:8px;">'+dl.label+'</div>'
-    +(fav?'<div style="position:absolute;top:12px;left:9px;font-size:11px;">⭐</div>':'')
+    +(fav?'<div style="position:absolute;top:12px;left:9px;color:#f59e0b;display:flex;"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:13px;height:13px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>':'')
     +'<div class="sticky-name" style="padding-right:52px'+(fav?';padding-left:18px':'')+'">'+(distHtml)+esc(j.name)+'</div>'
     +'<span class="sticky-badge '+bdCls+'">'+ageLabel+'</span>'
     +'<div class="sticky-count">'+(cnt?cnt+'件の投稿':'投稿なし')+'</div>'
@@ -772,7 +849,7 @@ function buildNewArrivals(){
     :'<div class="na-empty">'+emptyMsg+'</div>';
   return'<div class="na-section">'
     +'<div class="na-hdr">'
-    +'<div class="na-title">🔔 新着情報</div>'
+    +'<div class="na-title">'+svgIcon('bell')+' 新着情報</div>'
     +'<div style="display:flex;align-items:center;gap:8px">'
     +(items.length?'<span class="na-cnt">'+items.length+'件</span>':'')
     +'<button class="na-refresh-btn" id="na-refresh-btn" onclick="triggerRefresh()">'
@@ -796,14 +873,14 @@ function triggerRefresh(){
 function buildMenu(){
   var fav=getFavList();
   var h="";
-  h+='<div class="menu-sec">⭐ お気に入りの自治会</div>';
+  h+='<div class="menu-sec">'+svgIcon('star_on')+' お気に入りの自治会</div>';
   if(fav.length){
     fav.forEach(function(jid){
       var j=JICHIKAI.find(function(x){return x.id===jid;});
       if(!j)return;
       var age=latestAge(jid);var m=getMsgs(jid);
       h+='<div class="menu-item'+(boardJid===jid?" active":"")+'\" onclick="openBoard(\''+jid+'\');closeMenu()">'
-        +'<span style="font-size:16px">⭐</span>'
+        +'<span style="color:#f59e0b;display:flex;">'+svgIcon('star_on')+'</span>'
         +'<span class="menu-name-text">'+esc(j.name)+'</span>'
         +(m.length?'<span class="menu-badge bd-'+age+'">'+m.length+'件</span>':'')
         +'</div>';
@@ -813,8 +890,8 @@ function buildMenu(){
       +'</div>';
   }else{
     h+='<div style="padding:32px 16px;text-align:center;color:#aaa;font-size:13px;line-height:1.9;">'
-      +'<div style="font-size:32px;margin-bottom:10px">⭐</div>'
-      +'お気に入りの自治会はまだありません。<br>自治会ボードを開いて<br>右上の「☆ お気に入り登録」から<br>追加できます。'
+      +'<div style="color:#f59e0b;display:flex;justify-content:center;margin-bottom:10px;"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:32px;height:32px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>'
+      +'お気に入りの自治会はまだありません。<br>自治会ボードを開いて<br>右上の「お気に入り登録」から<br>追加できます。'
       +'</div>';
   }
   document.getElementById("menu-body").innerHTML=h;
@@ -843,7 +920,7 @@ function buildFavBanners(){
     var j=JICHIKAI.find(function(x){return x.id===jid;});if(!j)return"";
     var m=getMsgs(jid);
     return'<div class="fav-banner" onclick="openBoard(\''+jid+'\')">'
-      +'<span class="fav-banner-icon">⭐</span>'
+      +'<span class="fav-banner-icon">'+svgIcon('star_on')+'</span>'
       +'<div class="fav-banner-info">'
       +'<div style="font-size:10px;color:rgba(255,255,255,0.7);font-weight:700;">お気に入りの自治会</div>'
       +'<div class="fav-banner-name">'+esc(j.name)+'</div>'
@@ -859,17 +936,17 @@ function renderListView(){
   var h="";
 
   // 読み取り専用バナー
-  h+='<div class="readonly-banner">🔒 テスト閲覧モード — データは読み取り専用です。編集は行われません。</div>';
+  h+='<div class="readonly-banner">'+svgIcon('lock')+' テスト閲覧モード — データは読み取り専用です。編集は行われません。</div>';
 
   // 全体訪問者カウンター
-  h+='<div class="vc-bar"><div class="vc-pill" id="vc-global">👁️ このサイトの訪問者：<span class="vc-num">…</span> 人</div></div>';
+  h+='<div class="vc-bar"><div class="vc-pill" id="vc-global">'+svgIcon('person')+' このサイトの訪問者：<span class="vc-num">…</span> 人</div></div>';
 
   // お気に入りバナー
   h+='<div id="fav-banners">'+buildFavBanners()+'</div>';
 
   // 現在地バー
   h+='<div class="loc-bar">'
-    +'<span style="font-size:16px">📍</span>'
+    +'<span style="display:flex;color:var(--g-mid);">'+svgIcon('pin')+'</span>'
     +'<div class="loc-text">'+(userLat?'<strong>現在地を取得しました</strong>':"現在地を取得してください")+'</div>'
     +'<button class="loc-btn" onclick="getLocation()">'+(userLat?'再取得':'現在地を取得')+'</button>'
     +'</div>';
@@ -881,7 +958,7 @@ function renderListView(){
   h+='<div id="part-card-container">'+buildPartSection()+'</div>';
 
   // 付箋グリッド
-  h+='<div class="sec-label">🏘️ 自治会ボード一覧</div>';
+  h+='<div class="sec-label">'+svgIcon('home')+' 自治会ボード一覧</div>';
   h+='<div class="sticky-grid" id="sticky-grid">';
 
   // GPS取得済みなら距離順、そうでなければ番号順
@@ -922,11 +999,11 @@ function renderBoardView(){
   var h='<div style="clearfix:both">';
   h+='<button class="back-btn" onclick="renderListView()">← 一覧に戻る</button>';
   h+='<button class="fav-toggle-btn'+(isFav(boardJid)?" is-fav":"")+'\" id="fav-btn" onclick="onFavToggle()">'
-    +(isFav(boardJid)?'⭐ お気に入り済み':'☆ お気に入り登録')+'</button>';
+    +(isFav(boardJid)?svgIcon('star_on')+' お気に入り済み':svgIcon('star_off')+' お気に入り登録')+'</button>';
   h+='</div>';
   h+='<div class="board-name">'+esc(j.name)+'</div>';
   h+='<div class="board-meta">'+esc(j.addr)+'</div>';
-  h+='<div class="vc-bar"><div class="vc-pill" id="vc-board">👁️ このページの訪問者：<span class="vc-num">…</span> 人</div></div>';
+  h+='<div class="vc-bar"><div class="vc-pill" id="vc-board">'+svgIcon('person')+' このページの訪問者：<span class="vc-num">…</span> 人</div></div>';
 
   if(links)h+='<div class="detail-links">'+links+'</div>';
 
@@ -935,19 +1012,19 @@ function renderBoardView(){
     if(isTestAdmin){
       h+='<div class="admin-panel">'
         +'<div class="admin-panel-hdr">'
-        +'<span>🛠️ テスト管理者パネル（j_test専用）</span>'
+        +'<span>'+svgIcon('wrench')+' テスト管理者パネル（j_test専用）</span>'
         +'<button class="btn-logout" onclick="doAdminLogout()">ログアウト</button>'
         +'</div>'
         +'<div class="admin-section">'
-        +'<label>📝 お知らせを投稿</label>'
+        +'<label>'+svgIcon('edit')+' お知らせを投稿</label>'
         +'<textarea class="admin-textarea" id="admin-post-text" rows="4" placeholder="投稿内容を入力..."></textarea>'
         +'<div class="admin-priority-row">'
-        +'<input type="checkbox" id="admin-priority-check" style="width:16px;height:16px;"> 🔴 重要フラグをつける'
+        +'<input type="checkbox" id="admin-priority-check" style="width:16px;height:16px;"> '+svgIcon('alert')+' 重要フラグをつける'
         +'</div>'
-        +'<button class="admin-submit-btn" onclick="doPostMsg()">✉️ 投稿する</button>'
+        +'<button class="admin-submit-btn" onclick="doPostMsg()">'+svgIcon('send')+' 投稿する</button>'
         +'</div>'
         +'<div class="admin-section">'
-        +'<label>📷 写真を添付（Google Drive保存）</label>'
+        +'<label>'+svgIcon('camera')+' 写真を添付（Google Drive保存）</label>'
         +'<div class="admin-file-row">'
         +'<input type="file" id="admin-photo-input" accept="image/*" style="font-size:13px;flex:1;">'
         +'<button class="admin-upload-btn" onclick="doUploadPhoto()">アップロード</button>'
@@ -957,16 +1034,16 @@ function renderBoardView(){
         +'</div>'
         +'</div>';
     } else {
-      h+='<button class="admin-open-btn" onclick="openAdminLogin()">🔐 管理者ログイン（テスト環境専用）</button>';
+      h+='<button class="admin-open-btn" onclick="openAdminLogin()">'+svgIcon('lock')+' 管理者ログイン（テスト環境専用）</button>';
     }
   }
 
   h+='<div class="board-tabs">'
     +'<button class="board-tab active t-notice" id="tab-notice" onclick="switchBoardTab(\'notice\')">'
-    +'📢 お知らせ<span class="tab-cnt notice" id="tc-notice">'+msgs.length+'件</span>'
+    +svgIcon('megaphone')+' お知らせ<span class="tab-cnt notice" id="tc-notice">'+msgs.length+'件</span>'
     +'</button>'
     +'<button class="board-tab t-cond" id="tab-cond" onclick="switchBoardTab(\'condolence\')">'
-    +'🕊️ おくやみ<span class="tab-cnt cond" id="tc-cond">'+conds.length+'件</span>'
+    +svgIcon('leaf')+' おくやみ<span class="tab-cnt cond" id="tc-cond">'+conds.length+'件</span>'
     +'</button>'
     +'</div>';
 
@@ -1004,14 +1081,14 @@ function onFavToggle(){
   if(btn){
     var now=isFav(boardJid);
     btn.className="fav-toggle-btn"+(now?" is-fav":"");
-    btn.textContent=now?'⭐ お気に入り済み':'☆ お気に入り登録';
+    btn.innerHTML=now?svgIcon('star_on')+' お気に入り済み':svgIcon('star_off')+' お気に入り登録';
   }
 }
 
 /* ━━━━━ 投稿カードHTML（改善案 1 鮮度）━━━━━ */
 function buildMsgList(jid,name){
   var msgs=getMsgs(jid);
-  if(!msgs.length)return'<div class="msg-empty">📭 まだお知らせはありません</div>';
+  if(!msgs.length)return'<div class="msg-empty">'+svgIcon('mail')+'<span>まだお知らせはありません</span></div>';
   return msgs.map(function(m){
     var age=tsAge(m.timestamp);
     var ageCls="ab-"+age;
@@ -1023,12 +1100,15 @@ function buildMsgList(jid,name){
     var photoHtml=m.photoDataUrl
       ?'<div class="msg-photo"><img src="'+m.photoDataUrl+'" alt="添付写真" loading="lazy"></div>'
       :'';
+    var editBtn=(isTestAdmin&&jid==="j_test")
+      ?'<button class="msg-edit-btn" onclick="openEditModal(\''+m.id+'\')">'+svgIcon('edit')+' 編集</button>'
+      :'';
     var delBtn=(isTestAdmin&&jid==="j_test")
-      ?'<button class="msg-del-btn" onclick="doDeleteMsg(\''+m.id+'\')">🗑️ 削除</button>'
+      ?'<button class="msg-del-btn" onclick="doDeleteMsg(\''+m.id+'\')">'+svgIcon('trash')+' 削除</button>'
       :'';
     return'<div class="'+cardCls+'" id="mc-'+m.id+'">'
       +'<div class="msg-meta">'
-      +(isHigh?'<span class="msg-priority-label">🔴 重要</span>':"")
+      +(isHigh?'<span class="msg-priority-label">'+svgIcon('alert')+' 重要</span>':"")
       +'<span class="msg-jichi">'+esc(name)+'</span>'
       +'<span class="msg-time">'+fmtTs(m.timestamp)+'</span>'
       +(ageLabel?'<span class="msg-age-badge '+ageCls+'">'+ageLabel+'</span>':"")
@@ -1040,6 +1120,7 @@ function buildMsgList(jid,name){
       +'<span class="like-heart">'+(liked?svgIcon('heart_on'):svgIcon('heart_off'))+'</span>'
       +'<span class="like-count" id="lc-'+m.id+'">'+(m.likes||0)+'</span>'
       +'</button>'
+      +editBtn
       +delBtn
       +'</div>'
       +'</div>';
@@ -1181,7 +1262,7 @@ function doUploadPhoto(){
     if(statusEl){statusEl.className="upload-status err";statusEl.textContent="ファイルサイズは20MB以下にしてください";}
     return;
   }
-  if(statusEl){statusEl.className="upload-status";statusEl.textContent="📐 画像を圧縮中...";}
+  if(statusEl){statusEl.className="upload-status";statusEl.textContent="画像を圧縮中...";}
   var reader=new FileReader();
   reader.onload=function(ev){
     var img=new Image();
@@ -1197,7 +1278,7 @@ function doUploadPhoto(){
       fileEl.value="";
       if(statusEl){
         statusEl.className="upload-status";
-        statusEl.innerHTML='✅ 画像準備完了 — 投稿ボタンで一緒に保存されます'
+        statusEl.innerHTML='画像の準備完了 — 投稿ボタンで一緒に保存されます'
           +'<br><img src="'+dataUrl+'" alt="プレビュー" style="max-width:100%;max-height:100px;margin-top:6px;border-radius:6px;">';
       }
     };
@@ -1229,9 +1310,123 @@ function svgIcon(name){
     youtube:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon fill="currentColor" stroke="none" points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>',
     facebook:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
     heart_on:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-    heart_off:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
+    heart_off:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+    person:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    star_on:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    star_off:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+    pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+    trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+    edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+    send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+    camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+    wrench:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+    home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+    megaphone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+    alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/></svg>',
+    mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    clipboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
+    close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    leaf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.5c1.67-.96 3.9-1.83 6.18-1.83C16 17.67 20 13.33 20 8c-1.5 1-3 1.83-5.5 2.67L12 12"/></svg>'
   };
   return d[name]||'';
+}
+
+/* ━━━━━ 記事編集（j_test管理者専用） ━━━━━ */
+function openEditModal(msgId){
+  var msgs=getMsgs(boardJid);
+  var m=msgs.find(function(x){return x.id===msgId;});
+  if(!m)return;
+  editingMsgId=msgId;editPendingPhotoDataUrl=null;editDeletePhoto=false;
+  var textEl=document.getElementById("edit-text");
+  var priEl=document.getElementById("edit-priority-check");
+  if(textEl)textEl.value=m.text||"";
+  if(priEl)priEl.checked=(m.priority==="high");
+  var photoEl=document.getElementById("edit-current-photo");
+  if(photoEl){
+    photoEl.innerHTML=m.photoDataUrl
+      ?'<img src="'+m.photoDataUrl+'" alt="現在の写真"><button class="edit-del-photo-btn" onclick="doEditDeletePhoto()">写真を削除</button>'
+      :'<div style="font-size:12px;color:var(--ink-faint);">（写真なし）</div>';
+  }
+  var stEl=document.getElementById("edit-upload-status");
+  if(stEl){stEl.className="upload-status";stEl.innerHTML="";}
+  var fEl=document.getElementById("edit-photo-input");
+  if(fEl)fEl.value="";
+  document.getElementById("edit-overlay").classList.add("open");
+}
+function closeEditModal(){
+  document.getElementById("edit-overlay").classList.remove("open");
+  editingMsgId=null;editPendingPhotoDataUrl=null;editDeletePhoto=false;
+}
+function doEditDeletePhoto(){
+  editDeletePhoto=true;editPendingPhotoDataUrl=null;
+  var photoEl=document.getElementById("edit-current-photo");
+  if(photoEl)photoEl.innerHTML='<div style="font-size:12px;color:var(--red);">保存時に写真を削除します</div>';
+  var stEl=document.getElementById("edit-upload-status");
+  if(stEl){stEl.className="upload-status";stEl.innerHTML="";}
+}
+function doEditUploadPhoto(){
+  var fileEl=document.getElementById("edit-photo-input");
+  var statusEl=document.getElementById("edit-upload-status");
+  if(!fileEl||!fileEl.files.length){
+    if(statusEl){statusEl.className="upload-status err";statusEl.textContent="ファイルを選択してください";}
+    return;
+  }
+  var file=fileEl.files[0];
+  if(file.size>20*1024*1024){
+    if(statusEl){statusEl.className="upload-status err";statusEl.textContent="ファイルサイズは20MB以下にしてください";}
+    return;
+  }
+  if(statusEl){statusEl.className="upload-status";statusEl.textContent="画像を圧縮中...";}
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var maxW=800,quality=0.72;
+      var w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+      var cv=document.createElement("canvas");
+      cv.width=w;cv.height=h;
+      cv.getContext("2d").drawImage(img,0,0,w,h);
+      var dataUrl=cv.toDataURL("image/jpeg",quality);
+      editPendingPhotoDataUrl=dataUrl;
+      editDeletePhoto=false;
+      fileEl.value="";
+      var photoEl=document.getElementById("edit-current-photo");
+      if(photoEl)photoEl.innerHTML='<img src="'+dataUrl+'" alt="新しい写真プレビュー"><button class="edit-del-photo-btn" onclick="doEditDeletePhoto()">写真を削除</button>';
+      if(statusEl){statusEl.className="upload-status";statusEl.textContent="画像の準備完了";}
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function doSaveEdit(){
+  if(!editingMsgId)return;
+  var textEl=document.getElementById("edit-text");
+  var text=textEl?textEl.value.trim():"";
+  if(!text)return;
+  var priEl=document.getElementById("edit-priority-check");
+  var priority=priEl&&priEl.checked?"high":"";
+  if(firebaseOk&&db){
+    var upd={text:text,priority:priority,editedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    if(editPendingPhotoDataUrl){upd.photoDataUrl=editPendingPhotoDataUrl;}
+    else if(editDeletePhoto){upd.photoDataUrl=firebase.firestore.FieldValue.delete();}
+    db.collection("messages").doc(editingMsgId).update(upd)
+      .then(function(){closeEditModal();})
+      .catch(function(e){alert("編集エラー: "+e.message);});
+  } else {
+    var msgs=msgCache["j_test"]||[];
+    var m=msgs.find(function(x){return x.id===editingMsgId;});
+    if(m){
+      m.text=text;m.priority=priority;
+      if(editPendingPhotoDataUrl){m.photoDataUrl=editPendingPhotoDataUrl;}
+      else if(editDeletePhoto){delete m.photoDataUrl;}
+    }
+    closeEditModal();
+    refreshBoardNotice();
+  }
 }
 
 /* ━━━━━ テスト自治会ダミーデータ ━━━━━ */
