@@ -1123,13 +1123,15 @@ function doUploadPhoto(){
 
   resizeImage(file,1200,0.82,function(base64,mimeType){
     if(statusEl){statusEl.className="upload-status";statusEl.textContent="☁️ アップロード中...";}
+    var payload=JSON.stringify({
+      token:GAPP_TOKEN,action:"upload",
+      data:base64,mimeType:mimeType,
+      filename:"photo_"+Date.now()+".jpg"
+    });
     fetch(GAPP_URL,{
       method:"POST",
-      body:JSON.stringify({
-        token:GAPP_TOKEN,action:"upload",
-        data:base64,mimeType:mimeType,
-        filename:"photo_"+Date.now()+".jpg"
-      })
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:"payload="+encodeURIComponent(payload)
     }).then(function(r){return r.json();})
     .then(function(res){
       if(res.error){throw new Error(res.error);}
@@ -1155,7 +1157,8 @@ function doDeleteMsg(msgId,photoFileId){
   if(photoFileId){
     fetch(GAPP_URL,{
       method:"POST",
-      body:JSON.stringify({token:GAPP_TOKEN,action:"delete",fileId:photoFileId})
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:"payload="+encodeURIComponent(JSON.stringify({token:GAPP_TOKEN,action:"delete",fileId:photoFileId}))
     }).catch(function(e){console.warn("写真削除エラー:",e);});
   }
   if(firebaseOk&&db){
