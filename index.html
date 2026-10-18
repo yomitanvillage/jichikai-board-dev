@@ -4,12 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>読谷村 自治会ボード v2</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<!-- firebase-storage は不使用（Google Apps Script に移行済み） -->
 
 <style>
 /* ━━━━━━━━━━ CSS変数 ━━━━━━━━━━ */
@@ -397,7 +396,13 @@ body{
 }
 .upload-status{font-size:12px;color:var(--g-mid);margin-top:6px;word-break:break-all;}
 .upload-status.err{color:var(--red);}
+.msg-photo{margin:8px 0 4px;border-radius:var(--r-sm);overflow:hidden;}
+.msg-photo img{max-width:100%;max-height:240px;object-fit:cover;display:block;border-radius:var(--r-sm);}
+.msg-del-btn{margin-left:auto;padding:4px 10px;font-size:12px;background:none;border:1px solid var(--red,#e53935);color:var(--red,#e53935);border-radius:20px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.msg-del-btn:hover{background:#ffebee;}
 </style>
+</head>
+<body>
 
 <!-- header -->
 <header class="hdr">
@@ -484,7 +489,7 @@ var JICHIKAI = [
 ];
 
 /* ━━━━━ アプリ状態 ━━━━━ */
-var db=null, storage=null, firebaseOk=false;
+var db=null, firebaseOk=false;
 var userLat=null, userLng=null;
 var currentView="list"; // "list"|"board"
 var boardJid=null;
@@ -496,6 +501,11 @@ var naRefreshed=false;
 /* ━━━━━ テスト管理者状態（j_testのみ） ━━━━━ */
 var isTestAdmin=false;
 var TEST_ADMIN_PASS="yomitan-test2025"; // ←このパスワードはテスト用途限定
+
+/* ━━━━━ Google Apps Script ストレージ ━━━━━ */
+var GAPP_URL="https://script.google.com/macros/s/AKfycbzXa4f6JIGKyJbVIUbq_WisP5CQNIsXIe_MRqdApZAQ0DwQjdt7mL2cGd7DYSEpm2Yd/exec";
+var GAPP_TOKEN="yomitan-photo-2025";
+var pendingPhotoUrl=null, pendingPhotoFileId=null;
 
 /* ━━━━━ localStorage ユーティリティ ━━━━━ */
 var MAX_FAV=3;
@@ -534,7 +544,6 @@ function initFirebase(){
   try{
     firebase.initializeApp(FB_CFG);
     db=firebase.firestore();
-    if(typeof firebase.storage==="function"){storage=firebase.storage();}
     firebaseOk=true;
   }catch(e){console.error(e);showCspBanner();}
   renderListView();
@@ -875,12 +884,13 @@ function renderBoardView(){
         +'<button class="admin-submit-btn" onclick="doPostMsg()">✉️ 投稿する</button>'
         +'</div>'
         +'<div class="admin-section">'
-        +'<label>📷 写真をFirebase Storageへアップロード</label>'
+        +'<label>📷 写真を添付（Google Drive保存）</label>'
         +'<div class="admin-file-row">'
         +'<input type="file" id="admin-photo-input" accept="image/*" style="font-size:13px;flex:1;">'
         +'<button class="admin-upload-btn" onclick="doUploadPhoto()">アップロード</button>'
         +'</div>'
         +'<div class="upload-status" id="upload-status"></div>'
+        +'<small style="color:var(--ink-faint);font-size:11px;">写真をアップロード後、投稿ボタンで一緒に保存されます</small>'
         +'</div>'
         +'</div>';
     } else {
@@ -946,6 +956,12 @@ function buildMsgList(jid,name){
     var freshCls="fresh-"+age;
     var cardCls="msg-card "+freshCls+(isHigh?" priority-high":"");
     var liked=isLiked(m.id);
+    var photoHtml=m.photoUrl
+      ?'<div class="msg-photo"><img src="'+esc(m.photoUrl)+'" alt="添付写真" loading="lazy" onerror="this.parentNode.style.display=\'none\'"></div>'
+      :'';
+    var delBtn=(isTestAdmin&&jid==="j_test")
+      ?'<button class="msg-del-btn" onclick="doDeleteMsg(\''+m.id+'\',\''+esc(m.photoFileId||'')+'\')">🗑️ 削除</button>'
+      :'';
     return'<div class="'+cardCls+'" id="mc-'+m.id+'">'
       +'<div class="msg-meta">'
       +(isHigh?'<span class="msg-priority-label">🔴 重要</span>':"")
@@ -953,12 +969,14 @@ function buildMsgList(jid,name){
       +'<span class="msg-time">'+fmtTs(m.timestamp)+'</span>'
       +(ageLabel?'<span class="msg-age-badge '+ageCls+'">'+ageLabel+'</span>':"")
       +'</div>'
+      +photoHtml
       +'<div class="msg-text">'+linkify(m.text)+'</div>'
       +'<div class="msg-footer">'
       +'<button class="like-btn'+(liked?" liked":'')+'\" onclick="onLike(\''+m.id+'\')">'
       +'<span class="like-heart">'+(liked?svgIcon('heart_on'):svgIcon('heart_off'))+'</span>'
       +'<span class="like-count" id="lc-'+m.id+'">'+(m.likes||0)+'</span>'
       +'</button>'
+      +delBtn
       +'</div>'
       +'</div>';
   }).join("");
@@ -1035,27 +1053,59 @@ function doPostMsg(){
   if(!text){textEl.focus();return;}
   var priority=priEl&&priEl.checked?"high":"";
 
+  var docData={
+    jichiId:"j_test",text:text,priority:priority,likes:0
+  };
+  if(pendingPhotoUrl){
+    docData.photoUrl=pendingPhotoUrl;
+    docData.photoFileId=pendingPhotoFileId;
+  }
+
+  function clearForm(){
+    textEl.value="";if(priEl)priEl.checked=false;
+    pendingPhotoUrl=null;pendingPhotoFileId=null;
+    var st=document.getElementById("upload-status");
+    if(st){st.className="upload-status";st.innerHTML="";}
+  }
+
   if(firebaseOk&&db){
-    db.collection("messages").add({
-      jichiId:"j_test",text:text,priority:priority,
-      timestamp:firebase.firestore.FieldValue.serverTimestamp(),likes:0
-    }).then(function(){
-      textEl.value="";if(priEl)priEl.checked=false;
+    docData.timestamp=firebase.firestore.FieldValue.serverTimestamp();
+    db.collection("messages").add(docData).then(function(){
+      clearForm();
     }).catch(function(e){alert("投稿エラー: "+e.message);});
   } else {
     /* Firebase未接続時はローカルキャッシュに追加 */
     var now=Date.now();
-    var localMsg={
-      id:"local_"+now,jichiId:"j_test",text:text,priority:priority,
-      timestamp:{toDate:function(){return new Date(now);}},likes:0
-    };
+    var localMsg=Object.assign({
+      id:"local_"+now,
+      timestamp:{toDate:function(){return new Date(now);}}
+    },docData);
     msgCache["j_test"]=[localMsg].concat(msgCache["j_test"]||[]);
-    textEl.value="";if(priEl)priEl.checked=false;
+    clearForm();
     refreshBoardNotice();
   }
 }
 
-/* 写真アップロード（Firebase Storage） */
+/* 画像リサイズ（Canvas API） */
+function resizeImage(file,maxW,quality,callback){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+      var cv=document.createElement("canvas");
+      cv.width=w;cv.height=h;
+      cv.getContext("2d").drawImage(img,0,0,w,h);
+      var dataUrl=cv.toDataURL("image/jpeg",quality);
+      callback(dataUrl.split(",")[1],"image/jpeg");
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* 写真アップロード（Google Apps Script → Google Drive） */
 function doUploadPhoto(){
   var fileEl=document.getElementById("admin-photo-input");
   var statusEl=document.getElementById("upload-status");
@@ -1063,33 +1113,62 @@ function doUploadPhoto(){
     if(statusEl){statusEl.className="upload-status err";statusEl.textContent="ファイルを選択してください";}
     return;
   }
-  if(!storage){
-    if(statusEl){statusEl.className="upload-status err";
-      statusEl.textContent="Firebase Storageが未設定です。下記の手順でStorageを有効化してください。";}
+  var file=fileEl.files[0];
+  if(file.size>10*1024*1024){
+    if(statusEl){statusEl.className="upload-status err";statusEl.textContent="ファイルサイズは10MB以下にしてください";}
     return;
   }
-  var file=fileEl.files[0];
-  var ext=file.name.split(".").pop().toLowerCase();
-  var path="j_test/photos/"+Date.now()+"_"+Math.random().toString(36).slice(2)+"."+ext;
-  var ref=storage.ref(path);
+  if(statusEl){statusEl.className="upload-status";statusEl.textContent="📐 画像を圧縮中...";}
 
-  if(statusEl){statusEl.className="upload-status";statusEl.textContent="アップロード中...";}
-
-  ref.put(file).then(function(snap){return snap.ref.getDownloadURL();})
-  .then(function(url){
-    if(statusEl){
-      statusEl.className="upload-status";
-      statusEl.innerHTML='✅ 完了！ <a href="'+url+'" target="_blank" rel="noopener">画像を確認</a><br>'
-        +'<small style="color:#888;">URLをコピーして投稿文に貼り付けてください</small><br>'
-        +'<code style="font-size:10px;word-break:break-all;">'+url+'</code>';
-    }
-    /* 投稿テキストにURLを自動追記 */
-    var textEl=document.getElementById("admin-post-text");
-    if(textEl){var t=textEl.value;textEl.value=(t?t+"\n":"")+"📷 "+url;}
-    fileEl.value="";
-  }).catch(function(e){
-    if(statusEl){statusEl.className="upload-status err";statusEl.textContent="エラー: "+e.message;}
+  resizeImage(file,1200,0.82,function(base64,mimeType){
+    if(statusEl){statusEl.className="upload-status";statusEl.textContent="☁️ アップロード中...";}
+    fetch(GAPP_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        token:GAPP_TOKEN,action:"upload",
+        data:base64,mimeType:mimeType,
+        filename:"photo_"+Date.now()+".jpg"
+      })
+    }).then(function(r){return r.json();})
+    .then(function(res){
+      if(res.error){throw new Error(res.error);}
+      pendingPhotoUrl=res.url;
+      pendingPhotoFileId=res.fileId;
+      fileEl.value="";
+      if(statusEl){
+        statusEl.className="upload-status";
+        statusEl.innerHTML='✅ アップロード完了 — 投稿ボタンで一緒に保存されます'
+          +'<br><img src="'+res.url+'" alt="プレビュー" style="max-width:100%;max-height:100px;margin-top:6px;border-radius:6px;" onerror="this.style.display=\'none\'">';
+      }
+    }).catch(function(e){
+      pendingPhotoUrl=null;pendingPhotoFileId=null;
+      if(statusEl){statusEl.className="upload-status err";statusEl.textContent="エラー: "+e.message;}
+    });
   });
+}
+
+/* お知らせ削除（写真＋Firestoreドキュメント） */
+function doDeleteMsg(msgId,photoFileId){
+  if(!confirm("このお知らせを削除しますか？\nこの操作は取り消せません。")){return;}
+  /* 写真を先に削除（失敗してもドキュメントは削除する） */
+  if(photoFileId){
+    fetch(GAPP_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({token:GAPP_TOKEN,action:"delete",fileId:photoFileId})
+    }).catch(function(e){console.warn("写真削除エラー:",e);});
+  }
+  if(firebaseOk&&db){
+    db.collection("messages").doc(msgId).delete().catch(function(e){
+      alert("削除エラー: "+e.message);
+    });
+  } else {
+    if(msgCache["j_test"]){
+      msgCache["j_test"]=msgCache["j_test"].filter(function(m){return m.id!==msgId;});
+      refreshBoardNotice();
+    }
+  }
 }
 
 /* ━━━━━ SVGアイコンヘルパー ━━━━━ */
@@ -1119,6 +1198,5 @@ function initTestData(){
 /* ━━━━━ 起動 ━━━━━ */
 window.addEventListener("DOMContentLoaded",function(){initTestData();initFirebase();});
 </script>
-
 </body>
 </html>
