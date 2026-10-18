@@ -231,12 +231,6 @@ body{
   overflow:hidden;
   box-shadow:0 1px 4px rgba(0,0,0,0.06),0 2px 8px rgba(0,0,0,0.03);
 }
-/* 紙の捲れ（右下端） */
-.msg-card::after{
-  content:'';position:absolute;bottom:0;right:0;z-index:2;
-  width:20px;height:20px;pointer-events:none;
-  background:linear-gradient(225deg,var(--bg) 44%,rgba(80,50,10,0.10) 52%,transparent 66%);
-}
 /* 鮮度による外観変化 */
 .msg-card.fresh-today{
   background:#ffffff;
