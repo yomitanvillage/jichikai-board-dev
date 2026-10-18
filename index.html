@@ -506,7 +506,7 @@ var TEST_ADMIN_PASS="yomitan-test2025"; // ←このパスワードはテスト�
 /* ━━━━━ Google Apps Script ストレージ ━━━━━ */
 var GAPP_URL="https://script.google.com/macros/s/AKfycbznH3tu2IToLPd1lpFNyD3huFDVxvdkcMCLI2b6Ywby4iOBQ5Up6wNDve-y9xL1l2PL/exec";
 var GAPP_TOKEN="yomitan-photo-2025";
-var pendingPhotoUrl=null, pendingPhotoFileId=null;
+var pendingPhotoDataUrl=null;
 
 /* ━━━━━ localStorage ユーティリティ ━━━━━ */
 var MAX_FAV=3;
@@ -957,11 +957,11 @@ function buildMsgList(jid,name){
     var freshCls="fresh-"+age;
     var cardCls="msg-card "+freshCls+(isHigh?" priority-high":"");
     var liked=isLiked(m.id);
-    var photoHtml=m.photoUrl
-      ?'<div class="msg-photo"><img src="'+esc(m.photoUrl)+'" alt="添付写真" loading="lazy" onerror="this.parentNode.style.display=\'none\'"></div>'
+    var photoHtml=m.photoDataUrl
+      ?'<div class="msg-photo"><img src="'+m.photoDataUrl+'" alt="添付写真" loading="lazy"></div>'
       :'';
     var delBtn=(isTestAdmin&&jid==="j_test")
-      ?'<button class="msg-del-btn" onclick="doDeleteMsg(\''+m.id+'\',\''+esc(m.photoFileId||'')+'\')">🗑️ 削除</button>'
+      ?'<button class="msg-del-btn" onclick="doDeleteMsg(\''+m.id+'\')">🗑️ 削除</button>'
       :'';
     return'<div class="'+cardCls+'" id="mc-'+m.id+'">'
       +'<div class="msg-meta">'
@@ -1057,14 +1057,13 @@ function doPostMsg(){
   var docData={
     jichiId:"j_test",text:text,priority:priority,likes:0
   };
-  if(pendingPhotoUrl){
-    docData.photoUrl=pendingPhotoUrl;
-    docData.photoFileId=pendingPhotoFileId;
+  if(pendingPhotoDataUrl){
+    docData.photoDataUrl=pendingPhotoDataUrl;
   }
 
   function clearForm(){
     textEl.value="";if(priEl)priEl.checked=false;
-    pendingPhotoUrl=null;pendingPhotoFileId=null;
+    pendingPhotoDataUrl=null;
     var st=document.getElementById("upload-status");
     if(st){st.className="upload-status";st.innerHTML="";}
   }
@@ -1106,7 +1105,7 @@ function resizeImage(file,maxW,quality,callback){
   reader.readAsDataURL(file);
 }
 
-/* 写真アップロード（Google Apps Script → Google Drive） */
+/* 写真選択・圧縮（ローカル処理、外部通信なし） */
 function doUploadPhoto(){
   var fileEl=document.getElementById("admin-photo-input");
   var statusEl=document.getElementById("upload-status");
@@ -1115,50 +1114,38 @@ function doUploadPhoto(){
     return;
   }
   var file=fileEl.files[0];
-  if(file.size>10*1024*1024){
-    if(statusEl){statusEl.className="upload-status err";statusEl.textContent="ファイルサイズは10MB以下にしてください";}
+  if(file.size>20*1024*1024){
+    if(statusEl){statusEl.className="upload-status err";statusEl.textContent="ファイルサイズは20MB以下にしてください";}
     return;
   }
   if(statusEl){statusEl.className="upload-status";statusEl.textContent="📐 画像を圧縮中...";}
-
-  resizeImage(file,1200,0.82,function(base64,mimeType){
-    if(statusEl){statusEl.className="upload-status";statusEl.textContent="☁️ アップロード中...";}
-    var payload=JSON.stringify({
-      token:GAPP_TOKEN,action:"upload",
-      data:base64,mimeType:mimeType,
-      filename:"photo_"+Date.now()+".jpg"
-    });
-    fetch(GAPP_URL,{
-      method:"POST",
-      body:payload
-    }).then(function(r){return r.json();})
-    .then(function(res){
-      if(res.error){throw new Error(res.error);}
-      pendingPhotoUrl=res.url;
-      pendingPhotoFileId=res.fileId;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var maxW=800,quality=0.72;
+      var w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+      var cv=document.createElement("canvas");
+      cv.width=w;cv.height=h;
+      cv.getContext("2d").drawImage(img,0,0,w,h);
+      var dataUrl=cv.toDataURL("image/jpeg",quality);
+      pendingPhotoDataUrl=dataUrl;
       fileEl.value="";
       if(statusEl){
         statusEl.className="upload-status";
-        statusEl.innerHTML='✅ アップロード完了 — 投稿ボタンで一緒に保存されます'
-          +'<br><img src="'+res.url+'" alt="プレビュー" style="max-width:100%;max-height:100px;margin-top:6px;border-radius:6px;" onerror="this.style.display=\'none\'">';
+        statusEl.innerHTML='✅ 画像準備完了 — 投稿ボタンで一緒に保存されます'
+          +'<br><img src="'+dataUrl+'" alt="プレビュー" style="max-width:100%;max-height:100px;margin-top:6px;border-radius:6px;">';
       }
-    }).catch(function(e){
-      pendingPhotoUrl=null;pendingPhotoFileId=null;
-      if(statusEl){statusEl.className="upload-status err";statusEl.textContent="エラー: "+e.message;}
-    });
-  });
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
-/* お知らせ削除（写真＋Firestoreドキュメント） */
-function doDeleteMsg(msgId,photoFileId){
+/* お知らせ削除 */
+function doDeleteMsg(msgId){
   if(!confirm("このお知らせを削除しますか？\nこの操作は取り消せません。")){return;}
-  /* 写真を先に削除（失敗してもドキュメントは削除する） */
-  if(photoFileId){
-    fetch(GAPP_URL,{
-      method:"POST",
-      body:JSON.stringify({token:GAPP_TOKEN,action:"delete",fileId:photoFileId})
-    }).catch(function(e){console.warn("写真削除エラー:",e);});
-  }
   if(firebaseOk&&db){
     db.collection("messages").doc(msgId).delete().catch(function(e){
       alert("削除エラー: "+e.message);
