@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>読谷村 自治会ボード v2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1124,7 +1125,6 @@ function doUploadPhoto(){
     if(statusEl){statusEl.className="upload-status";statusEl.textContent="☁️ アップロード中...";}
     fetch(GAPP_URL,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         token:GAPP_TOKEN,action:"upload",
         data:base64,mimeType:mimeType,
@@ -1155,7 +1155,6 @@ function doDeleteMsg(msgId,photoFileId){
   if(photoFileId){
     fetch(GAPP_URL,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
       body:JSON.stringify({token:GAPP_TOKEN,action:"delete",fileId:photoFileId})
     }).catch(function(e){console.warn("写真削除エラー:",e);});
   }
@@ -1198,5 +1197,6 @@ function initTestData(){
 /* ━━━━━ 起動 ━━━━━ */
 window.addEventListener("DOMContentLoaded",function(){initTestData();initFirebase();});
 </script>
+
 </body>
 </html>
